@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#060d1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DoseCalc">
+<meta name="description" content="Calculateur de doses médicamenteuses pour étudiants infirmiers. Perfusion, PSE, PCA, conversions d'unités.">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>DoseCalc — Calcul de doses infirmier</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Epilogue:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060d1a;
+  --surface: #0e1829;
+  --card: #131f30;
+  --card2: #172236;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #eef2f7;
+  --muted: #7a8fa8;
+  --dim: rgba(255,255,255,0.35);
+
+  --anti: #38bdf8;       /* antibiotiques - bleu ciel */
+  --anticoag: #f472b6;   /* anticoagulants - rose */
+  --analg: #a78bfa;      /* analgésiques - violet */
+  --cardio: #f97316;     /* cardiovasculaires - orange */
+  --insul: #34d399;      /* insuline - emeraude */
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Epilogue', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse 60% 35% at 15% 0%, rgba(56,189,248,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 40% at 85% 90%, rgba(167,139,250,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 35% 30% at 50% 50%, rgba(249,115,22,0.04) 0%, transparent 55%);
+  pointer-events:none; z-index:0;
+}
+
+.app { position:relative; z-index:1; max-width:480px; margin:0 auto; padding-bottom:30px; }
+
+/* ─── SCREEN SYSTEM ─── */
+.screen { display:none; }
+.screen.active { display:block; animation: fadeUp .35s ease; }
+
+/* ─── HEADER ─── */
+.top-bar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 28px 20px 10px;
+}
+.app-name {
+  font-family:'Clash Display', sans-serif;
+  font-weight:700; font-size:24px;
+  background: linear-gradient(120deg, #38bdf8, #a78bfa);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.top-right { display:flex; align-items:center; gap:10px; }
+.disclaimer-btn {
+  background: rgba(251,113,133,0.12);
+  border: 1px solid rgba(251,113,133,0.25);
+  border-radius:8px; padding:5px 10px;
+  font-size:11px; font-weight:600; color:#fb7185;
+  cursor:pointer; letter-spacing:.3px;
+}
+
+/* ─── SEARCH ─── */
+.search-wrap {
+  padding: 10px 20px 20px;
+}
+.search-box {
+  background: var(--card);
+  border: 1.5px solid var(--border2);
+  border-radius:16px;
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.search-box:focus-within {
+  border-color: var(--anti);
+  box-shadow: 0 0 0 3px rgba(56,189,248,.08);
+}
+.search-box input {
+  background:none; border:none; outline:none;
+  color:var(--text); font-family:'Epilogue',sans-serif;
+  font-size:15px; width:100%;
+}
+.search-box input::placeholder { color:var(--muted); }
+.search-box svg { color:var(--muted); flex-shrink:0; }
+
+/* ─── SECTION LABEL ─── */
+.sec-label {
+  font-family:'Clash Display', sans-serif;
+  font-size:11px; font-weight:600; letter-spacing:1.8px;
+  text-transform:uppercase; color:var(--muted);
+  padding: 0 20px; margin-bottom:12px;
+}
+
+/* ─── CLASS PILLS ─── */
+.class-row {
+  display:flex; gap:8px; padding:0 20px;
+  overflow-x:auto; scrollbar-width:none; margin-bottom:22px;
+}
+.class-row::-webkit-scrollbar { display:none; }
+.class-pill {
+  flex-shrink:0; padding:7px 14px; border-radius:50px;
+  font-size:12px; font-weight:600; cursor:pointer;
+  border:1.5px solid var(--border2); background:var(--card);
+  color:var(--muted); transition:all .2s; white-space:nowrap;
+}
+.class-pill.active { border-color:transparent; color:#060d1a; }
+.class-pill[data-class="all"].active { background:linear-gradient(135deg,#38bdf8,#a78bfa); }
+.class-pill[data-class="antibiotiques"].active { background:var(--anti); }
+.class-pill[data-class="anticoagulants"].active { background:var(--anticoag); }
+.class-pill[data-class="analgesiques"].active { background:var(--analg); }
+.class-pill[data-class="cardiovasculaires"].active { background:var(--cardio); }
+.class-pill[data-class="insuline"].active { background:var(--insul); }
+
+/* ─── MED CARDS ─── */
+.med-list { display:flex; flex-direction:column; gap:11px; padding:0 20px; }
+
+.med-card {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px; padding:17px 18px;
+  cursor:pointer;
+  display:flex; align-items:center; gap:14px;
+  transition: transform .18s, border-color .18s, box-shadow .18s;
+  animation: fadeUp .4s ease both;
+}
+.med-card:active { transform:scale(.97); }
+.med-card:hover { border-color:var(--border2); box-shadow:0 6px 24px rgba(0,0,0,.3); }
+
+.med-icon {
+  width:46px; height:46px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+}
+
+.med-info { flex:1; min-width:0; }
+.med-name {
+  font-family:'Clash Display', sans-serif;
+  font-weight:600; font-size:16px; margin-bottom:3px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.med-sub { font-size:12px; color:var(--muted); line-height:1.4; }
+
+.med-badge {
+  font-size:10px; font-weight:700; padding:3px 9px;
+  border-radius:20px; letter-spacing:.4px;
+  text-transform:uppercase; flex-shrink:0;
+}
+
+.chevron { color:var(--muted); flex-shrink:0; }
+
+/* class colors */
+.cls-antibiotiques .med-icon { background:rgba(56,189,248,.13); }
+.cls-antibiotiques .med-badge { background:rgba(56,189,248,.13); color:var(--anti); }
+.cls-anticoagulants .med-icon { background:rgba(244,114,182,.13); }
+.cls-anticoagulants .med-badge { background:rgba(244,114,182,.13); color:var(--anticoag); }
+.cls-analgesiques .med-icon { background:rgba(167,139,250,.13); }
+.cls-analgesiques .med-badge { background:rgba(167,139,250,.13); color:var(--analg); }
+.cls-cardiovasculaires .med-icon { background:rgba(249,115,22,.13); }
+.cls-cardiovasculaires .med-badge { background:rgba(249,115,22,.13); color:var(--cardio); }
+.cls-insuline .med-icon { background:rgba(52,211,153,.13); }
+.cls-insuline .med-badge { background:rgba(52,211,153,.13); color:var(--insul); }
+
+/* ─── DETAIL SCREEN ─── */
+.detail-header {
+  padding: 24px 20px 0;
+  display:flex; align-items:center; gap:14px; margin-bottom:20px;
+}
+.back-btn {
+  width:40px; height:40px; border-radius:12px;
+  background:var(--card); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; flex-shrink:0; transition:background .2s;
+}
+.back-btn:active { background:var(--card2); }
+.detail-title-wrap { flex:1; }
+.detail-med-name {
+  font-family:'Clash Display', sans-serif;
+  font-size:22px; font-weight:700; line-height:1.1;
+}
+.detail-med-class {
+  font-size:12px; color:var(--muted); margin-top:3px;
+}
+
+/* ─── TABS DETAIL ─── */
+.detail-tabs {
+  display:flex; gap:6px; padding:0 20px; margin-bottom:20px;
+  overflow-x:auto; scrollbar-width:none;
+}
+.detail-tabs::-webkit-scrollbar { display:none; }
+.dtab {
+  flex-shrink:0; padding:9px 16px; border-radius:10px;
+  font-size:13px; font-weight:500; cursor:pointer;
+  border:1.5px solid var(--border); background:var(--card);
+  color:var(--muted); transition:all .2s;
+}
+.dtab.active {
+  border-color:transparent; color:#060d1a; font-weight:700;
+}
+
+/* ─── INFO BOX ─── */
+.info-section { padding:0 20px; margin-bottom:14px; }
+
+.info-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px; margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+.info-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+
+.info-card-title {
+  font-family:'Clash Display', sans-serif;
+  font-size:12px; font-weight:600; letter-spacing:1.2px;
+  text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+}
+
+.formes-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.forme-item {
+  background:var(--card2); border-radius:10px; padding:10px 12px;
+  font-size:13px; line-height:1.4;
+}
+.forme-label { font-size:10px; color:var(--muted); margin-bottom:3px; }
+
+.posologie-list { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.posologie-item {
+  display:flex; gap:10px; align-items:flex-start;
+  font-size:13px; line-height:1.5;
+}
+.posologie-dot {
+  width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:5px;
+}
+
+.alerte-box {
+  border-radius:12px; padding:13px 14px;
+  font-size:13px; line-height:1.55;
+  border-left:3px solid;
+}
+
+/* ─── CALC SECTION ─── */
+.calc-section { padding:0 20px; }
+
+.calc-block {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px; margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+.calc-block::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+
+.calc-block-title {
+  font-family:'Clash Display', sans-serif;
+  font-size:14px; font-weight:600; margin-bottom:4px;
+}
+.calc-block-desc {
+  font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.4;
+}
+
+.formula {
+  background:rgba(255,255,255,.03); border:1px solid var(--border);
+  border-radius:10px; padding:10px 12px; margin-bottom:14px;
+  font-family:'DM Mono', monospace; font-size:11px; color:var(--muted); line-height:1.6;
+}
+.formula b { color:var(--anti); font-weight:500; }
+
+.field { margin-bottom:12px; }
+.field-lbl {
+  font-size:10px; font-weight:700; letter-spacing:.9px;
+  text-transform:uppercase; color:var(--muted); margin-bottom:6px;
+  display:flex; gap:6px; align-items:center;
+}
+.field-hint { font-weight:400; text-transform:none; letter-spacing:0; font-size:10px; color:rgba(122,143,168,.6); }
+
+.row { display:flex; gap:8px; }
+
+.iw { position:relative; flex:1; }
+.iw input {
+  width:100%; background:var(--card2); border:1.5px solid var(--border2);
+  border-radius:11px; padding:11px 46px 11px 13px;
+  color:var(--text); font-family:'DM Mono', monospace;
+  font-size:16px; font-weight:500; outline:none;
+  transition:border-color .2s, box-shadow .2s;
+  -webkit-appearance:none; appearance:none;
+}
+.iw input:focus { border-color:var(--anti); box-shadow:0 0 0 3px rgba(56,189,248,.08); }
+.iw input::placeholder { color:rgba(122,143,168,.4); font-size:14px; }
+.iu {
+  position:absolute; right:11px; top:50%; transform:translateY(-50%);
+  font-size:10px; font-weight:700; color:var(--muted); pointer-events:none; letter-spacing:.3px;
+}
+
+.sel {
+  width:100%; background:var(--card2); border:1.5px solid var(--border2);
+  border-radius:11px; padding:11px 13px; color:var(--text);
+  font-family:'Epilogue', sans-serif; font-size:13px; outline:none; cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='7' viewBox='0 0 10 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 6L9 1' stroke='%237a8fa8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 13px center;
+  padding-right:32px; transition:border-color .2s;
+}
+.sel:focus { border-color:var(--anti); }
+.sel option { background:var(--surface); }
+
+.calc-btn {
+  width:100%; padding:14px; border-radius:12px; border:none;
+  font-family:'Clash Display', sans-serif; font-weight:600; font-size:15px;
+  cursor:pointer; margin-top:4px; transition:transform .15s, opacity .2s;
+  color:#060d1a; letter-spacing:.2px;
+}
+.calc-btn:active { transform:scale(.98); opacity:.9; }
+
+.result-box {
+  border-radius:14px; padding:16px 18px; margin-top:12px;
+  display:none; animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
+  border:1px solid;
+}
+.result-box.show { display:block; }
+.r-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:6px; }
+.r-val {
+  font-family:'Clash Display', sans-serif; font-size:38px;
+  font-weight:700; line-height:1; margin-bottom:3px;
+}
+.r-unit { font-size:13px; color:var(--muted); margin-bottom:12px; }
+.r-detail {
+  background:rgba(255,255,255,.04); border-radius:9px; padding:10px 12px;
+  font-family:'DM Mono', monospace; font-size:12px; color:var(--muted); line-height:1.6;
+}
+.r-detail strong { color:var(--text); font-weight:500; }
+
+.err-box {
+  background:rgba(251,113,133,.09); border:1px solid rgba(251,113,133,.2);
+  border-radius:12px; padding:12px 14px; margin-top:10px;
+  font-size:13px; color:#fb7185; display:none;
+}
+.err-box.show { display:block; }
+
+/* ─── DISCLAIMER MODAL ─── */
+.modal-bg {
+  position:fixed; inset:0; background:rgba(0,0,0,.75);
+  backdrop-filter:blur(10px); z-index:200;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px; opacity:0; pointer-events:none; transition:opacity .3s;
+}
+.modal-bg.open { opacity:1; pointer-events:all; }
+.modal-box {
+  background:var(--surface); border:1px solid var(--border2);
+  border-radius:24px; padding:28px 24px; max-width:400px; width:100%;
+  transform:scale(.92); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-bg.open .modal-box { transform:scale(1); }
+.modal-icon { font-size:36px; margin-bottom:12px; }
+.modal-title {
+  font-family:'Clash Display', sans-serif; font-size:20px;
+  font-weight:700; margin-bottom:10px; color:#fb7185;
+}
+.modal-text { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:20px; }
+.modal-close {
+  width:100%; padding:13px; border-radius:12px; border:none;
+  background:linear-gradient(135deg,#fb7185,#f97316);
+  font-family:'Clash Display', sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; color:white; transition:opacity .2s;
+}
+.modal-close:active { opacity:.85; }
+
+/* ─── NO RESULT ─── */
+.no-result { text-align:center; padding:50px 20px; color:var(--muted); }
+.no-result .nr-icon { font-size:42px; margin-bottom:12px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes popIn {
+  from { opacity:0; transform:scale(.9); }
+  to   { opacity:1; transform:scale(1); }
+}
+.med-card:nth-child(1){animation-delay:.04s}
+.med-card:nth-child(2){animation-delay:.08s}
+.med-card:nth-child(3){animation-delay:.12s}
+.med-card:nth-child(4){animation-delay:.16s}
+.med-card:nth-child(5){animation-delay:.20s}
+.med-card:nth-child(6){animation-delay:.24s}
+.med-card:nth-child(7){animation-delay:.28s}
+.med-card:nth-child(8){animation-delay:.32s}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+input[type=number] { -moz-appearance:textfield; }
+
+.divider { height:1px; background:var(--border); margin:14px 0; }
+
+/* ─── BOTTOM NAV ─── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(14,24,41,0.94); backdrop-filter:blur(20px);
+  border-top:1px solid var(--border2);
+  display:flex; justify-content:space-around;
+  padding:10px 0 22px; z-index:100;
+}
+.nav-it {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:5px 18px; cursor:pointer; border-radius:12px; transition:all .2s;
+}
+.nav-it svg { transition:color .2s; }
+.nav-lbl { font-size:10px; font-weight:600; color:var(--muted); transition:color .2s; letter-spacing:.3px; }
+.nav-it.active .nav-lbl { color:#38bdf8; }
+.nav-it.active svg { color:#38bdf8 !important; }
+#nav-conv.active .nav-lbl { color:#fbbf24; }
+#nav-conv.active svg { color:#fbbf24 !important; }
+
+/* ─── OUTILS SCREEN ─── */
+.tools-header { padding:28px 20px 16px; }
+.tools-title {
+  font-family:'Clash Display', sans-serif; font-size:22px; font-weight:700;
+  background:linear-gradient(120deg,#34d399,#38bdf8);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  margin-bottom:4px;
+}
+.tools-sub { color:var(--muted); font-size:13px; }
+
+.tools-grid { display:flex; flex-direction:column; gap:12px; padding:0 20px 20px; }
+
+.tool-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:20px; padding:20px; cursor:pointer;
+  transition:transform .18s, border-color .18s, box-shadow .18s;
+  position:relative; overflow:hidden;
+}
+.tool-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:20px 20px 0 0;
+}
+.tool-card:active { transform:scale(.98); }
+.tool-card:hover { border-color:var(--border2); box-shadow:0 8px 28px rgba(0,0,0,.3); }
+
+.tool-card-top { display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.tool-icon { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.tool-card-name { font-family:'Clash Display', sans-serif; font-weight:600; font-size:17px; }
+.tool-card-desc { font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:14px; }
+.tool-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.tool-chip { font-size:11px; padding:3px 9px; border-radius:6px; background:rgba(255,255,255,.06); color:var(--muted); }
+
+/* tool colors */
+.tool-perf::before { background:linear-gradient(90deg,#34d399,#38bdf8); }
+.tool-perf .tool-icon { background:rgba(52,211,153,.12); }
+.tool-pse::before { background:linear-gradient(90deg,#a78bfa,#f472b6); }
+.tool-pse .tool-icon { background:rgba(167,139,250,.12); }
+.tool-pca::before { background:linear-gradient(90deg,#f472b6,#f97316); }
+.tool-pca .tool-icon { background:rgba(244,114,182,.12); }
+.tool-med::before { background:linear-gradient(90deg,#38bdf8,#a78bfa); }
+.tool-med .tool-icon { background:rgba(56,189,248,.12); }
+
+/* ─── TOOL DETAIL SCREEN ─── */
+.tool-detail-header {
+  padding:24px 20px 0; display:flex; align-items:center; gap:14px; margin-bottom:20px;
+}
+.tool-detail-content { padding:0 20px 20px; }
+
+.tool-block {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px; margin-bottom:14px;
+  position:relative; overflow:hidden;
+}
+.tool-block::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.tool-block-title { font-family:'Clash Display', sans-serif; font-size:15px; font-weight:600; margin-bottom:4px; }
+.tool-block-desc { font-size:12px; color:var(--muted); margin-bottom:16px; line-height:1.4; }
+
+.tr-result {
+  border-radius:14px; padding:16px; margin-top:12px;
+  display:none; animation:popIn .4s cubic-bezier(.34,1.56,.64,1); border:1px solid;
+}
+.tr-result.show { display:block; }
+
+.multi-result { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.mr-item {}
+.mr-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:4px; }
+.mr-val { font-family:'Clash Display', sans-serif; font-size:28px; font-weight:700; }
+.mr-unit { font-size:12px; color:var(--muted); }
+
+.memo-sec { margin-top:6px; }
+.memo-sec-title {
+  font-family:'Clash Display', sans-serif; font-size:11px; font-weight:600;
+  letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+}
+.memo-g { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.memo-i {
+  background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:12px;
+}
+.memo-i .ml { font-size:10px; color:var(--muted); margin-bottom:4px; }
+.memo-i .mv { font-family:'DM Mono', monospace; font-size:12px; line-height:1.4; }
+.memo-full { grid-column:span 2; }
+
+.app { padding-bottom:90px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ══════════════════════════════════════
+       SCREEN 1 — LISTE DES MÉDICAMENTS
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-list">
+    <div class="top-bar">
+      <span class="app-name">DoseCalc</span>
+      <div class="top-right">
+        <div class="disclaimer-btn" onclick="openModal()">⚠️ Avertissement</div>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Rechercher un médicament..." oninput="renderList()">
+      </div>
+    </div>
+
+    <p class="sec-label">Classe thérapeutique</p>
+    <div class="class-row" id="classRow"></div>
+
+    <p class="sec-label" style="margin-top:4px">Médicaments</p>
+    <div class="med-list" id="medList"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 2 — DÉTAIL MÉDICAMENT
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-detail">
+    <div class="detail-header">
+      <div class="back-btn" onclick="goBack()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="detail-title-wrap">
+        <div class="detail-med-name" id="d-name"></div>
+        <div class="detail-med-class" id="d-class"></div>
+      </div>
+    </div>
+
+    <div class="detail-tabs" id="detailTabs"></div>
+
+    <div id="tabContent"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 3 — OUTILS CLINIQUES
+  ══════════════════════════════════════ -->
+  <div class="screen active" id="screen-tools">
+    <div class="tools-header">
+      <div class="tools-title">Calculateurs</div>
+      <div class="tools-sub">Calculateurs génériques indépendants du médicament</div>
+    </div>
+    <div class="tools-grid">
+
+      <div class="tool-card tool-perf" onclick="openTool('perfusion')">
+        <div class="tool-card-top">
+          <div class="tool-icon">💧</div>
+          <div class="tool-card-name">Perfusion IV</div>
+        </div>
+        <div class="tool-card-desc">Calcule le débit en mL/h et en gouttes/min selon le volume et la durée. Choix du type de perfuseur.</div>
+        <div class="tool-chips">
+          <span class="tool-chip">mL/h</span><span class="tool-chip">gtt/min</span><span class="tool-chip">Macrogouttes</span><span class="tool-chip">Microgouttes</span>
+        </div>
+      </div>
+
+      <div class="tool-card tool-pse" onclick="openTool('pse')">
+        <div class="tool-card-top">
+          <div class="tool-icon">💉</div>
+          <div class="tool-card-name">Pousse-seringue (PSE)</div>
+        </div>
+        <div class="tool-card-desc">Calcule la concentration d'une seringue et le débit horaire pour une dose cible. Adapté à tout médicament en PSE.</div>
+        <div class="tool-chips">
+          <span class="tool-chip">Concentration</span><span class="tool-chip">Débit mL/h</span><span class="tool-chip">mg · mcg · UI</span>
+        </div>
+      </div>
+
+      <div class="tool-card tool-pca" onclick="openTool('pca')">
+        <div class="tool-card-top">
+          <div class="tool-icon">🎛️</div>
+          <div class="tool-card-name">PCA — Analgésie patient</div>
+        </div>
+        <div class="tool-card-desc">Programme une pompe PCA : débit de fond, volume bolus, période réfractaire et dose max 4h.</div>
+        <div class="tool-chips">
+          <span class="tool-chip">Débit de base</span><span class="tool-chip">Bolus</span><span class="tool-chip">Réfractaire</span><span class="tool-chip">Max 4h</span>
+        </div>
+      </div>
+
+      <div class="tool-card tool-med" onclick="openTool('generique')">
+        <div class="tool-card-top">
+          <div class="tool-icon">🧮</div>
+          <div class="tool-card-name">Dose générique</div>
+        </div>
+        <div class="tool-card-desc">Règle de trois universelle + calcul par poids/m². Pour tout médicament non listé dans la base.</div>
+        <div class="tool-chips">
+          <span class="tool-chip">Règle de 3</span><span class="tool-chip">mg/kg</span><span class="tool-chip">Surface corporelle</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 4 — DÉTAIL OUTIL
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-tool-detail">
+    <div class="tool-detail-header">
+      <div class="back-btn" onclick="goBackTools()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="detail-title-wrap">
+        <div class="detail-med-name" id="tool-title"></div>
+        <div class="detail-med-class" id="tool-sub"></div>
+      </div>
+    </div>
+    <div class="tool-detail-content" id="tool-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 5 — CONVERSIONS
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-conv">
+    <div class="tools-header">
+      <div class="tools-title" style="background:linear-gradient(120deg,#fbbf24,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Conversions</div>
+      <div class="tools-sub">Unités de masse, volume, concentration et débit</div>
+    </div>
+    <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:14px" id="conv-content"></div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <div class="nav-it active" id="nav-tools" onclick="showScreen('tools')">
+    <svg width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    <span class="nav-lbl">Calculateurs</span>
+  </div>
+  <div class="nav-it" id="nav-conv" onclick="showScreen('conv')">
+    <svg width="22" height="22" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+    <span class="nav-lbl">Conversions</span>
+  </div>
+  <div class="nav-it" id="nav-meds" onclick="showScreen('list')">
+    <svg width="22" height="22" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><rect x="9" y="1" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    <span class="nav-lbl">Médicaments</span>
+  </div>
+</nav>
+<div class="modal-bg" id="disclaimerModal">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">Avertissement important</div>
+    <div class="modal-text">
+      Cette application est un <strong>outil pédagogique</strong> destiné aux étudiants infirmiers.<br><br>
+      Les calculs produits ne remplacent <strong>jamais</strong> la prescription médicale, le protocole de service ni le jugement clinique d'un professionnel de santé.<br><br>
+      Toujours vérifier les doses avec le <strong>Vidal, le protocole de l'établissement</strong> et le médecin prescripteur avant toute administration.
+    </div>
+    <button class="modal-close" onclick="closeModal()">J'ai compris</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// BASE DE DONNÉES MÉDICAMENTS
+// ═══════════════════════════════════════════════
+const MEDS = [
+  // ── ANTIBIOTIQUES ──
+  {
+    id:'amoxicilline', name:'Amoxicilline', class:'antibiotiques', icon:'💊',
+    dci:'Amoxicilline trihydrate', indication:'Infections bactériennes — spectre large',
+    formes:[
+      {label:'Flacon IV', val:'500 mg / 10 mL · 1 g / 20 mL'},
+      {label:'Comprimé', val:'500 mg · 1 g'},
+      {label:'Sachet', val:'500 mg · 1 g'},
+    ],
+    posologies:[
+      {txt:'Adulte standard : 1 g × 3/j (per os ou IV lente)', color:'#38bdf8'},
+      {txt:'Infections sévères : 2 g × 3/j IV', color:'#38bdf8'},
+      {txt:'Enfant : 25–50 mg/kg/j en 3 prises', color:'#7dd3fc'},
+    ],
+    alertes:'Vérifier allergie pénicilline · Adapter en insuffisance rénale (DFG < 30) · Durée : 5–10 j selon indication',
+    alerteColor:'rgba(56,189,248,.1)', alerteBorder:'#38bdf8',
+    calculs:[
+      {
+        id:'vol', title:'Volume à prélever (IV)',
+        desc:'Calcule le volume à injecter selon la dose prescrite et la concentration du flacon.',
+        formula:'Volume (mL) = <b>Dose prescrite (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg', placeholder:'ex: 1000'},
+          {id:'qty', label:'Contenu du flacon', unit:'mg', placeholder:'ex: 1000'},
+          {id:'vol', label:'Volume du flacon', unit:'mL', placeholder:'ex: 20'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const res = v.dose / c;
+          return { val: r2(res), unit:'mL', detail:`Concentration : <strong>${r3(c)} mg/mL</strong><br>Dose : <strong>${v.dose} mg</strong> → <strong>${r2(res)} mL</strong>` };
+        }
+      },
+      {
+        id:'poids', title:'Dose selon le poids (pédiatrie)',
+        desc:'Calcule la dose totale selon le poids de l\'enfant.',
+        formula:'Dose (mg) = <b>mg/kg/j</b> × <b>Poids (kg)</b> ÷ <b>nb prises</b>',
+        fields:[
+          {id:'mgkg', label:'Posologie prescrite', unit:'mg/kg/j', placeholder:'ex: 50'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 20'},
+          {id:'prises', label:'Nombre de prises / jour', unit:'prises', placeholder:'ex: 3'},
+        ],
+        calc: v => {
+          const total = v.mgkg * v.poids;
+          const parPrise = total / v.prises;
+          return { val: r2(parPrise), unit:'mg / prise', detail:`Dose totale/j : <strong>${r2(total)} mg</strong><br>Soit <strong>${r2(parPrise)} mg</strong> par prise (${v.prises}×/j)` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'ceftriaxone', name:'Ceftriaxone', class:'antibiotiques', icon:'💉',
+    dci:'Ceftriaxone sodique', indication:'Infections sévères — C3G — Rocéphine®',
+    formes:[
+      {label:'Flacon IV', val:'500 mg · 1 g · 2 g'},
+      {label:'Reconstitution', val:'10 mL pour 1 g → 100 mg/mL'},
+    ],
+    posologies:[
+      {txt:'Adulte : 1–2 g/j en 1 injection IV lente (30 min)', color:'#38bdf8'},
+      {txt:'Méningite : 2–4 g/j en 2 injections', color:'#fb7185'},
+      {txt:'Enfant : 50–100 mg/kg/j (max 4 g/j)', color:'#7dd3fc'},
+    ],
+    alertes:'Ne pas mélanger avec calcium IV · Injection IV lente ≥ 30 min · Conserver après reconstitution < 24h au frigo',
+    alerteColor:'rgba(56,189,248,.1)', alerteBorder:'#38bdf8',
+    calculs:[
+      {
+        id:'vol', title:'Volume après reconstitution',
+        desc:'Calcule le volume à prélever selon la dose prescrite et la dilution choisie.',
+        formula:'Volume (mL) = <b>Dose (mg)</b> ÷ <b>Concentration reconstituée (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg', placeholder:'ex: 2000'},
+          {id:'qty', label:'Poudre dans le flacon', unit:'mg', placeholder:'ex: 1000'},
+          {id:'vol', label:'Volume de reconstitution', unit:'mL', placeholder:'ex: 10'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const res = v.dose / c;
+          return { val: r2(res), unit:'mL', detail:`Concentration : <strong>${r2(c)} mg/mL</strong><br>Pour ${v.dose} mg → <strong>${r2(res)} mL</strong>` };
+        }
+      }
+    ]
+  },
+
+  // ── ANTICOAGULANTS ──
+  {
+    id:'heparine', name:'Héparine sodique', class:'anticoagulants', icon:'🩸',
+    dci:'Héparine sodique', indication:'Anticoagulation curative ou préventive — Héparine Choay®',
+    formes:[
+      {label:'PSE', val:'25 000 UI / 5 mL (5000 UI/mL)'},
+      {label:'SC', val:'5000 UI / 0,2 mL'},
+      {label:'Rinçage', val:'100 UI / mL'},
+    ],
+    posologies:[
+      {txt:'Curatif : 500 UI/kg/j en IV continue (PSE)', color:'#f472b6'},
+      {txt:'Préventif : 5000 UI SC × 2–3/j', color:'#f9a8d4'},
+      {txt:'Objectif TCA : 2 à 3 fois le témoin', color:'#f472b6'},
+    ],
+    alertes:'Surveiller TCA/anti-Xa · Risque hémorragique · Antidote : sulfate de protamine · Vérifier NFS (thrombopénie)',
+    alerteColor:'rgba(244,114,182,.1)', alerteBorder:'#f472b6',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE (IV continue)',
+        desc:'Calcule le débit du pousse-seringue selon la dose en UI/kg/j.',
+        formula:'Débit (mL/h) = (<b>UI/kg/j</b> × <b>Poids</b>) ÷ <b>Concentration</b> ÷ <b>24</b>',
+        fields:[
+          {id:'uikg', label:'Dose prescrite', unit:'UI/kg/j', placeholder:'ex: 500'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+          {id:'conc', label:'Concentration seringue', unit:'UI/mL', placeholder:'ex: 500'},
+        ],
+        calc: v => {
+          const totalj = v.uikg * v.poids;
+          const debit = totalj / v.conc / 24;
+          return { val: r2(debit), unit:'mL / heure', detail:`Dose totale/j : <strong>${totalj} UI</strong><br>Concentration : <strong>${v.conc} UI/mL</strong><br>Débit PSE : <strong>${r2(debit)} mL/h</strong>` };
+        }
+      },
+      {
+        id:'vol', title:'Volume SC à injecter',
+        desc:'Calcule le volume à prélever pour une injection sous-cutanée.',
+        formula:'Volume (mL) = <b>Dose (UI)</b> ÷ <b>Concentration (UI/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'UI', placeholder:'ex: 5000'},
+          {id:'conc', label:'Concentration ampoule', unit:'UI/mL', placeholder:'ex: 25000'},
+        ],
+        calc: v => {
+          const res = v.dose / v.conc;
+          return { val: r3(res), unit:'mL', detail:`${v.dose} UI ÷ ${v.conc} UI/mL = <strong>${r3(res)} mL</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'enoxaparine', name:'Énoxaparine', class:'anticoagulants', icon:'💉',
+    dci:'Énoxaparine sodique', indication:'HBPM — Lovenox® — Curatif et préventif',
+    formes:[
+      {label:'Seringue SC', val:'2000 · 4000 · 6000 · 8000 · 10000 UI'},
+      {label:'Concentration', val:'10 000 UI anti-Xa / mL'},
+    ],
+    posologies:[
+      {txt:'Curatif : 100 UI/kg × 2/j SC (ou 150 UI/kg × 1/j)', color:'#f472b6'},
+      {txt:'Préventif risque élevé : 4000 UI SC/j', color:'#f9a8d4'},
+      {txt:'Adapter si poids extrême ou IRC', color:'#f472b6'},
+    ],
+    alertes:'Contre-indiqué si DFG < 30 (préférer héparine non fractionnée) · Surveiller poids, créatinine · Pas en IV',
+    alerteColor:'rgba(244,114,182,.1)', alerteBorder:'#f472b6',
+    calculs:[
+      {
+        id:'dose', title:'Dose curative selon le poids',
+        desc:'Calcule la dose d\'énoxaparine selon le poids et le protocole.',
+        formula:'Dose (UI) = <b>UI/kg</b> × <b>Poids (kg)</b>',
+        fields:[
+          {id:'uikg', label:'Posologie prescrite', unit:'UI/kg', placeholder:'ex: 100'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 75'},
+        ],
+        calc: v => {
+          const dose = v.uikg * v.poids;
+          const vol = dose / 10000;
+          return { val: r0(dose), unit:'UI anti-Xa', detail:`${v.uikg} UI/kg × ${v.poids} kg = <strong>${r0(dose)} UI</strong><br>Volume à injecter : <strong>${r3(vol)} mL</strong> (si 10 000 UI/mL)` };
+        }
+      }
+    ]
+  },
+
+  // ── ANALGÉSIQUES ──
+  {
+    id:'morphine', name:'Morphine', class:'analgesiques', icon:'🔮',
+    dci:'Chlorhydrate de morphine', indication:'Analgésie opioïde — douleurs sévères',
+    formes:[
+      {label:'IV / PSE', val:'10 mg / mL (ampoule 1 mL)'},
+      {label:'Dilution PSE', val:'1 mg/mL (10 mg/10 mL)'},
+      {label:'PCA', val:'1 mg/mL standard'},
+    ],
+    posologies:[
+      {txt:'Titration IV : 2–3 mg / 5 min jusqu\'à EVA ≤ 3', color:'#a78bfa'},
+      {txt:'PSE : 1–5 mg/h selon EVA et tolérance', color:'#a78bfa'},
+      {txt:'PCA bolus : 1 mg — réfractaire : 7 min', color:'#c4b5fd'},
+    ],
+    alertes:'Surveiller FR (< 10 → Naloxone) · SpO₂ · Sédation · Score de Ramsay · Antidote : Naloxone 0,4 mg IVD',
+    alerteColor:'rgba(167,139,250,.1)', alerteBorder:'#a78bfa',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE morphine',
+        desc:'Calcule le débit du pousse-seringue selon la dose horaire souhaitée.',
+        formula:'Débit (mL/h) = <b>Dose/h (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose horaire souhaitée', unit:'mg/h', placeholder:'ex: 2'},
+          {id:'qty', label:'Morphine dans seringue', unit:'mg', placeholder:'ex: 20'},
+          {id:'vol', label:'Volume total seringue', unit:'mL', placeholder:'ex: 20'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const debit = v.dose / c;
+          return { val: r2(debit), unit:'mL / heure', detail:`Concentration : <strong>${r2(c)} mg/mL</strong><br>Dose : <strong>${v.dose} mg/h</strong> → débit : <strong>${r2(debit)} mL/h</strong>` };
+        }
+      },
+      {
+        id:'titration', title:'Titration IV — doses de charge',
+        desc:'Calcule le volume à injecter par bolus lors d\'une titration morphinique.',
+        formula:'Volume (mL) = <b>Dose bolus (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'bolus', label:'Dose bolus prescrite', unit:'mg', placeholder:'ex: 3'},
+          {id:'conc', label:'Concentration ampoule', unit:'mg/mL', placeholder:'ex: 10'},
+        ],
+        calc: v => {
+          const res = v.bolus / v.conc;
+          return { val: r3(res), unit:'mL par bolus', detail:`${v.bolus} mg ÷ ${v.conc} mg/mL = <strong>${r3(res)} mL</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'paracetamol', name:'Paracétamol', class:'analgesiques', icon:'💊',
+    dci:'Paracétamol', indication:'Analgésie palier 1 — Antipyrexie — Perfalgan® (IV)',
+    formes:[
+      {label:'IV', val:'1000 mg / 100 mL (10 mg/mL)'},
+      {label:'Per os', val:'500 mg · 1000 mg'},
+      {label:'Suppositoire', val:'80 · 150 · 300 mg'},
+    ],
+    posologies:[
+      {txt:'Adulte : 1 g × 4/j max (toutes voies) — espacement ≥ 4h', color:'#a78bfa'},
+      {txt:'Poids < 50 kg : 15 mg/kg par prise', color:'#c4b5fd'},
+      {txt:'Enfant : 15 mg/kg/prise × 4/j max', color:'#c4b5fd'},
+    ],
+    alertes:'Dose maximale absolue : 4 g/j adulte (2 g/j si insuffisance hépatique) · Vérifier tous les traitements associés (risque cumul)',
+    alerteColor:'rgba(167,139,250,.1)', alerteBorder:'#a78bfa',
+    calculs:[
+      {
+        id:'dose', title:'Dose selon le poids',
+        desc:'Calcule la dose de paracétamol selon le poids (pédiatrie ou adulte < 50 kg).',
+        formula:'Dose (mg) = <b>15 mg/kg</b> × <b>Poids (kg)</b>',
+        fields:[
+          {id:'mgkg', label:'Posologie prescrite', unit:'mg/kg', placeholder:'ex: 15'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 35'},
+        ],
+        calc: v => {
+          const dose = v.mgkg * v.poids;
+          const maxj = dose * 4;
+          return { val: r0(dose), unit:'mg par prise', detail:`${v.mgkg} mg/kg × ${v.poids} kg = <strong>${r0(dose)} mg/prise</strong><br>Max/j (×4) : <strong>${r0(maxj)} mg/j</strong>${maxj > 4000 ? ' ⚠️ Dépasse 4 g/j !' : ''}` };
+        }
+      }
+    ]
+  },
+
+  // ── CARDIOVASCULAIRES ──
+  {
+    id:'dobutamine', name:'Dobutamine', class:'cardiovasculaires', icon:'❤️',
+    dci:'Dobutamine chlorhydrate', indication:'Choc cardiogénique — Inotrope positif',
+    formes:[
+      {label:'Flacon', val:'250 mg / 20 mL (12,5 mg/mL)'},
+      {label:'Dilution PSE', val:'1–5 mg/mL selon protocole'},
+    ],
+    posologies:[
+      {txt:'2–20 mcg/kg/min en IV continue (PSE)', color:'#f97316'},
+      {txt:'Titration progressive par paliers de 2,5 mcg/kg/min', color:'#fdba74'},
+      {txt:'Dose max : 20 mcg/kg/min (tachycardie > 20)', color:'#fb7185'},
+    ],
+    alertes:'Scope continu obligatoire · Surveiller FC (risque tachycardie), PA · Voie veineuse centrale recommandée · Arrêt progressif',
+    alerteColor:'rgba(249,115,22,.1)', alerteBorder:'#f97316',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE (mcg/kg/min)',
+        desc:'Calcule le débit du pousse-seringue selon la dose en mcg/kg/min.',
+        formula:'Débit (mL/h) = <b>mcg/kg/min</b> × <b>Poids</b> × <b>60</b> ÷ <b>Conc (mcg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mcg/kg/min', placeholder:'ex: 5'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+          {id:'conc', label:'Concentration seringue', unit:'mg/mL', placeholder:'ex: 1'},
+        ],
+        calc: v => {
+          const concMcg = v.conc * 1000;
+          const debit = (v.dose * v.poids * 60) / concMcg;
+          const doseH = v.dose * v.poids * 60 / 1000;
+          return { val: r2(debit), unit:'mL / heure', detail:`Dose : <strong>${v.dose} mcg/kg/min × ${v.poids} kg = ${r2(v.dose * v.poids)} mcg/min</strong><br>= <strong>${r2(doseH)} mg/h</strong><br>Débit : <strong>${r2(debit)} mL/h</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'adrenaline', name:'Adrénaline', class:'cardiovasculaires', icon:'⚡',
+    dci:'Épinéphrine', indication:'Arrêt cardiaque — Anaphylaxie — Choc septique réfractaire',
+    formes:[
+      {label:'Ampoule', val:'1 mg / 1 mL (1 mg/mL)'},
+      {label:'PSE choc', val:'Diluer : 5 mg/50 mL = 0,1 mg/mL'},
+    ],
+    posologies:[
+      {txt:'ACR : 1 mg IV toutes les 3–5 min', color:'#f97316'},
+      {txt:'Anaphylaxie : 0,3–0,5 mg IM face antérolatérale cuisse', color:'#fb7185'},
+      {txt:'Choc : 0,1–1 mcg/kg/min PSE — titration', color:'#f97316'},
+    ],
+    alertes:'URGENCE VITALE — Scope continu obligatoire · VVC pour PSE · Anaphylaxie : IM en 1er, puis IV si pas de réponse',
+    alerteColor:'rgba(249,115,22,.15)', alerteBorder:'#f97316',
+    calculs:[
+      {
+        id:'vol', title:'Volume bolus IV (ACR / anaphylaxie)',
+        desc:'Calcule le volume à injecter selon la dose prescrite.',
+        formula:'Volume (mL) = <b>Dose (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg', placeholder:'ex: 1'},
+          {id:'conc', label:'Concentration ampoule', unit:'mg/mL', placeholder:'ex: 1'},
+        ],
+        calc: v => {
+          const res = v.dose / v.conc;
+          return { val: r2(res), unit:'mL', detail:`${v.dose} mg ÷ ${v.conc} mg/mL = <strong>${r2(res)} mL</strong>` };
+        }
+      },
+      {
+        id:'pse', title:'Débit PSE choc (mcg/kg/min)',
+        desc:'Calcule le débit du PSE pour l\'adrénaline en perfusion continue.',
+        formula:'Débit (mL/h) = <b>mcg/kg/min</b> × <b>Poids</b> × <b>60</b> ÷ <b>Conc (mcg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mcg/kg/min', placeholder:'ex: 0.2'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+          {id:'conc', label:'Concentration PSE', unit:'mcg/mL', placeholder:'ex: 100'},
+        ],
+        calc: v => {
+          const debit = (v.dose * v.poids * 60) / v.conc;
+          return { val: r2(debit), unit:'mL / heure', detail:`${v.dose} mcg/kg/min × ${v.poids} kg × 60 ÷ ${v.conc} mcg/mL = <strong>${r2(debit)} mL/h</strong>` };
+        }
+      }
+    ]
+  },
+
+  // ── INSULINE ──
+  {
+    id:'insuline-rapide', name:'Insuline rapide', class:'insuline', icon:'🩺',
+    dci:'Insuline humaine régulière (Actrapid®, Novorapid®)', indication:'Hyperglycémie — PSE en réa — Protocole gluco-insulinique',
+    formes:[
+      {label:'Flacon', val:'100 UI / mL'},
+      {label:'PSE standard', val:'50 UI / 50 mL (1 UI/mL)'},
+      {label:'Stylo', val:'100 UI / mL'},
+    ],
+    posologies:[
+      {txt:'PSE : débit selon protocole glycémique (ex : 0–8 UI/h)', color:'#34d399'},
+      {txt:'SC correctif : 1 UI pour 0,3 g/L au-dessus de 1,4 g/L', color:'#6ee7b7'},
+      {txt:'Ajuster selon glycémie capillaire toutes les heures (réa)', color:'#34d399'},
+    ],
+    alertes:'Risque hypoglycémie majeur · Glycémie cible : 1,4–1,8 g/L en réa · Antidote : G30% IVD si Glyc < 0,6 g/L',
+    alerteColor:'rgba(52,211,153,.1)', alerteBorder:'#34d399',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE insuline',
+        desc:'Calcule le débit du PSE selon la dose prescrite en UI/h.',
+        formula:'Débit (mL/h) = <b>Dose (UI/h)</b> ÷ <b>Concentration (UI/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'UI/h', placeholder:'ex: 4'},
+          {id:'conc', label:'Concentration seringue', unit:'UI/mL', placeholder:'ex: 1'},
+        ],
+        calc: v => {
+          const debit = v.dose / v.conc;
+          return { val: r2(debit), unit:'mL / heure', detail:`${v.dose} UI/h ÷ ${v.conc} UI/mL = <strong>${r2(debit)} mL/h</strong>` };
+        }
+      },
+      {
+        id:'correctif', title:'Dose correctrice sous-cutanée',
+        desc:'Calcule la dose corrective selon la glycémie capillaire et la sensibilité.',
+        formula:'Dose (UI) = (<b>Glyc (g/L)</b> − <b>Cible</b>) ÷ <b>Sensibilité (g/L par UI)</b>',
+        fields:[
+          {id:'glyc', label:'Glycémie actuelle', unit:'g/L', placeholder:'ex: 2.5'},
+          {id:'cible', label:'Glycémie cible', unit:'g/L', placeholder:'ex: 1.4'},
+          {id:'sensi', label:'Sensibilité (1 UI fait baisser de)', unit:'g/L', placeholder:'ex: 0.3'},
+        ],
+        calc: v => {
+          const diff = v.glyc - v.cible;
+          if (diff <= 0) return { val:'0', unit:'UI (glycémie dans la cible)', detail:`Glycémie ${v.glyc} g/L ≤ cible ${v.cible} g/L → pas de correctif` };
+          const dose = diff / v.sensi;
+          return { val: r1(dose), unit:'UI SC', detail:`(${v.glyc} − ${v.cible}) ÷ ${v.sensi} = <strong>${r1(dose)} UI</strong> SC à administrer` };
+        }
+      }
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════
+// LOGIQUE UI
+// ═══════════════════════════════════════════════
+const CLASSES = [
+  {key:'all', label:'Toutes'},
+  {key:'antibiotiques', label:'🦠 Antibiotiques'},
+  {key:'anticoagulants', label:'🩸 Anticoagulants'},
+  {key:'analgesiques', label:'💊 Analgésiques'},
+  {key:'cardiovasculaires', label:'❤️ Cardiovasc.'},
+  {key:'insuline', label:'🩺 Insuline'},
+];
+
+const CLASS_COLORS = {
+  antibiotiques:'#38bdf8', anticoagulants:'#f472b6',
+  analgesiques:'#a78bfa', cardiovasculaires:'#f97316', insuline:'#34d399'
+};
+
+let currentClass = 'all';
+let currentMed = null;
+let currentCalcTab = 0;
+
+function r0(n){ return Math.round(n); }
+function r1(n){ return Math.round(n*10)/10; }
+function r2(n){ return Math.round(n*100)/100; }
+function r3(n){ return Math.round(n*1000)/1000; }
+
+// Build class pills
+function buildClassRow(){
+  const row = document.getElementById('classRow');
+  row.innerHTML = CLASSES.map(c => `
+    <div class="class-pill ${c.key===currentClass?'active':''}" data-class="${c.key}" onclick="setClass('${c.key}')">${c.label}</div>
+  `).join('');
+}
+
+function setClass(k){
+  currentClass = k;
+  buildClassRow();
+  renderList();
+}
+
+function renderList(){
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const filtered = MEDS.filter(m => {
+    const classOk = currentClass==='all' || m.class===currentClass;
+    const searchOk = !q || m.name.toLowerCase().includes(q) || m.dci.toLowerCase().includes(q) || m.indication.toLowerCase().includes(q);
+    return classOk && searchOk;
+  });
+
+  const list = document.getElementById('medList');
+  if(!filtered.length){
+    list.innerHTML = `<div class="no-result"><div class="nr-icon">🔍</div><p>Aucun médicament trouvé</p></div>`;
+    return;
+  }
+  const cc = CLASS_COLORS;
+  list.innerHTML = filtered.map(m => `
+    <div class="med-card cls-${m.class}" onclick="openMed('${m.id}')">
+      <div class="med-icon">${m.icon}</div>
+      <div class="med-info">
+        <div class="med-name">${m.name}</div>
+        <div class="med-sub">${m.indication}</div>
+      </div>
+      <span class="med-badge">${m.class}</span>
+      <svg class="chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    </div>
+  `).join('');
+}
+
+function openMed(id){
+  currentMed = MEDS.find(m=>m.id===id);
+  currentCalcTab = 0;
+  if(!currentMed) return;
+
+  const col = CLASS_COLORS[currentMed.class];
+
+  document.getElementById('d-name').textContent = `${currentMed.icon} ${currentMed.name}`;
+  document.getElementById('d-class').textContent = currentMed.dci + ' · ' + currentMed.class;
+
+  // Build tabs
+  const tabs = ['📋 Infos', ...currentMed.calculs.map((c,i)=>`🧮 ${c.title}`)];
+  document.getElementById('detailTabs').innerHTML = tabs.map((t,i)=>`
+    <div class="dtab ${i===0?'active':''}" onclick="switchTab(${i})" style="${i===0?`background:${col};color:#060d1a;border-color:transparent`:''}">${t}</div>
+  `).join('');
+
+  renderTab(0);
+
+  document.getElementById('screen-list').classList.remove('active');
+  document.getElementById('screen-detail').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function switchTab(i){
+  currentCalcTab = i;
+  document.querySelectorAll('.dtab').forEach((t,idx)=>{
+    const col = CLASS_COLORS[currentMed.class];
+    if(idx===i){
+      t.classList.add('active');
+      t.style.background=col; t.style.color='#060d1a'; t.style.borderColor='transparent';
+    } else {
+      t.classList.remove('active');
+      t.style.background=''; t.style.color=''; t.style.borderColor='';
+    }
+  });
+  renderTab(i);
+}
+
+function renderTab(i){
+  const col = CLASS_COLORS[currentMed.class];
+  const content = document.getElementById('tabContent');
+
+  if(i===0){
+    // INFO TAB
+    content.innerHTML = `
+      <div class="info-section">
+        <div class="info-card">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${col}"></div>
+          <div class="info-card-title">Formes disponibles</div>
+          <div class="formes-grid">
+            ${currentMed.formes.map(f=>`
+              <div class="forme-item">
+                <div class="forme-label">${f.label}</div>
+                <div style="font-size:13px;font-weight:500;color:${col}">${f.val}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${col}"></div>
+          <div class="info-card-title">Posologies de référence</div>
+          <ul class="posologie-list">
+            ${currentMed.posologies.map(p=>`
+              <li class="posologie-item">
+                <div class="posologie-dot" style="background:${p.color}"></div>
+                <span>${p.txt}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="alerte-box" style="background:${currentMed.alerteColor};border-left-color:${currentMed.alerteBorder}">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${currentMed.alerteBorder};margin-bottom:6px">⚠️ Points de vigilance</div>
+          ${currentMed.alertes}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // CALC TAB
+  const calc = currentMed.calculs[i-1];
+  const col2 = col;
+  content.innerHTML = `
+    <div class="calc-section">
+      <div class="calc-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${col2}"></div>
+        <div class="calc-block-title">${calc.title}</div>
+        <div class="calc-block-desc">${calc.desc}</div>
+        <div class="formula">${calc.formula}</div>
+
+        ${calc.fields.map(f=>`
+          <div class="field">
+            <div class="field-lbl">${f.label}</div>
+            <div class="iw">
+              <input type="number" id="f_${f.id}" placeholder="${f.placeholder}" step="any" inputmode="decimal">
+              <span class="iu">${f.unit}</span>
+            </div>
+          </div>
+        `).join('')}
+
+        <button class="calc-btn" style="background:linear-gradient(135deg,${col2},${col2}cc)" onclick="runCalc()">
+          Calculer →
+        </button>
+
+        <div class="result-box" id="result-box" style="background:${col2}14;border-color:${col2}33">
+          <div class="r-label">Résultat</div>
+          <div class="r-val" id="r-val" style="color:${col2}">—</div>
+          <div class="r-unit" id="r-unit"></div>
+          <div class="r-detail" id="r-detail"></div>
+        </div>
+        <div class="err-box" id="err-box">⚠️ Vérifie que tous les champs sont remplis et valides.</div>
+      </div>
+    </div>
+  `;
+}
+
+function runCalc(){
+  const calc = currentMed.calculs[currentCalcTab-1];
+  if(!calc) return;
+
+  const vals = {};
+  let valid = true;
+  calc.fields.forEach(f=>{
+    const v = parseFloat(document.getElementById('f_'+f.id).value);
+    if(isNaN(v) || v < 0){ valid=false; } else { vals[f.id]=v; }
+  });
+
+  const rb = document.getElementById('result-box');
+  const eb = document.getElementById('err-box');
+
+  if(!valid){
+    rb.classList.remove('show'); eb.classList.add('show'); return;
+  }
+  eb.classList.remove('show');
+
+  try {
+    const res = calc.calc(vals);
+    document.getElementById('r-val').textContent = res.val;
+    document.getElementById('r-unit').textContent = res.unit;
+    document.getElementById('r-detail').innerHTML = res.detail;
+    rb.classList.add('show');
+  } catch(e){
+    eb.classList.add('show'); rb.classList.remove('show');
+  }
+}
+
+function goBack(){
+  document.getElementById('screen-detail').classList.remove('active');
+  document.getElementById('screen-list').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goBackTools(){
+  document.getElementById('screen-tool-detail').classList.remove('active');
+  document.getElementById('screen-tools').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function showScreen(s){
+  ['screen-list','screen-tools','screen-detail','screen-tool-detail','screen-conv'].forEach(id=>
+    document.getElementById(id).classList.remove('active')
+  );
+  ['nav-meds','nav-tools','nav-conv'].forEach(id=>{
+    document.getElementById(id).classList.remove('active');
+  });
+  document.querySelectorAll('.nav-it svg').forEach(svg=>svg.style.stroke='#64748b');
+
+  if(s==='tools'){
+    document.getElementById('screen-tools').classList.add('active');
+    document.getElementById('nav-tools').classList.add('active');
+    document.querySelector('#nav-tools svg').style.stroke='#38bdf8';
+    document.querySelector('#nav-tools .nav-lbl').style.color='#38bdf8';
+  } else if(s==='conv'){
+    document.getElementById('screen-conv').classList.add('active');
+    document.getElementById('nav-conv').classList.add('active');
+    document.querySelector('#nav-conv svg').style.stroke='#fbbf24';
+    document.querySelector('#nav-conv .nav-lbl').style.color='#fbbf24';
+    renderConv();
+  } else {
+    document.getElementById('screen-list').classList.add('active');
+    document.getElementById('nav-meds').classList.add('active');
+    document.querySelector('#nav-meds svg').style.stroke='#38bdf8';
+    document.querySelector('#nav-meds .nav-lbl').style.color='#38bdf8';
+  }
+  window.scrollTo(0,0);
+}
+
+// ─── MODULE CONVERSION ───
+const CONV_GROUPS = [
+  {
+    id:'masse', title:'⚖️ Masse (doses médicament)',
+    color:'#fbbf24', color2:'#f97316',
+    units:['g','mg','mcg (µg)','ng'],
+    factors:[1, 1e-3, 1e-6, 1e-9], // en grammes
+    labels:['gramme (g)','milligramme (mg)','microgramme (µg)','nanogramme (ng)'],
+    memo:[
+      {l:'1 g',v:'= 1 000 mg'},
+      {l:'1 mg',v:'= 1 000 mcg'},
+      {l:'1 mcg',v:'= 1 000 ng'},
+      {l:'1 g',v:'= 1 000 000 mcg'},
+    ]
+  },
+  {
+    id:'volume', title:'💧 Volume',
+    color:'#38bdf8', color2:'#34d399',
+    units:['L','dL','cL','mL','µL'],
+    factors:[1, 0.1, 0.01, 0.001, 0.000001],
+    labels:['litre (L)','décilitre (dL)','centilitre (cL)','millilitre (mL)','microlitre (µL)'],
+    memo:[
+      {l:'1 L',v:'= 1 000 mL'},
+      {l:'1 dL',v:'= 100 mL'},
+      {l:'1 mL',v:'= 1 000 µL'},
+      {l:'1 cL',v:'= 10 mL'},
+    ]
+  },
+  {
+    id:'conc', title:'🔬 Concentration',
+    color:'#a78bfa', color2:'#38bdf8',
+    units:['g/L','mg/L','mg/mL','mcg/mL','mcg/µL'],
+    factors:[1, 0.001, 1, 0.001, 1], // base mg/mL
+    isConc: true,
+    memo:[
+      {l:'1 g/L',v:'= 1 mg/mL'},
+      {l:'1 mg/mL',v:'= 1 000 mcg/mL'},
+      {l:'1%',v:'= 10 mg/mL'},
+      {l:'1 UI/mL',v:'variable selon substance'},
+    ]
+  },
+  {
+    id:'debit', title:'⏱️ Débit',
+    color:'#34d399', color2:'#38bdf8',
+    units:['mL/h','mL/min','µL/h','L/h','gtt/min (macro 20)','gtt/min (micro 60)'],
+    factors:[1, 60, 0.001, 1000, 3, 1], // base mL/h
+    isDebit: true,
+    memo:[
+      {l:'1 mL/h',v:'= 0,0167 mL/min'},
+      {l:'20 gtt/min',v:'= 60 mL/h (macro)'},
+      {l:'60 gtt/min',v:'= 60 mL/h (micro)'},
+      {l:'1 L/h',v:'= 1 000 mL/h'},
+    ]
+  },
+  {
+    id:'glycemie', title:'🩸 Glycémie',
+    color:'#fb7185', color2:'#f97316',
+    units:['g/L','mmol/L','mg/dL'],
+    factors:[1, 0.18018, 0.1], // base g/L
+    labels:['g/L (France)','mmol/L (international)','mg/dL (USA)'],
+    memo:[
+      {l:'1 g/L',v:'= 5,55 mmol/L'},
+      {l:'1 g/L',v:'= 100 mg/dL'},
+      {l:'Norme à jeun',v:'0,70 – 1,10 g/L'},
+      {l:'Hypo',v:'< 0,60 g/L'},
+    ]
+  },
+  {
+    id:'temperature', title:'🌡️ Température',
+    color:'#f97316', color2:'#fb7185',
+    units:['°C','°F','K'],
+    isTemp: true,
+    memo:[
+      {l:'37°C',v:'= 98,6°F'},
+      {l:'38,5°C',v:'= 101,3°F'},
+      {l:'0°C',v:'= 273,15 K'},
+      {l:'Fièvre',v:'> 38°C'},
+    ]
+  },
+];
+
+function renderConv(){
+  const container = document.getElementById('conv-content');
+  if(container.dataset.rendered) return;
+  container.dataset.rendered = '1';
+
+  container.innerHTML = CONV_GROUPS.map(g => `
+    <div class="tool-block" style="margin-bottom:0">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${g.color},${g.color2})"></div>
+      <div class="tool-block-title">${g.title}</div>
+
+      <div class="field" style="margin-bottom:10px">
+        <div class="field-lbl">Valeur à convertir</div>
+        <div class="row">
+          <div class="iw" style="flex:2">
+            <input type="number" id="cv_${g.id}_val" placeholder="ex: 500" step="any" inputmode="decimal" oninput="convertUnit('${g.id}')">
+            <span class="iu" id="cv_${g.id}_iu">${g.isTemp ? '°C' : (g.units[0])}</span>
+          </div>
+          <select class="sel" id="cv_${g.id}_from" style="flex:2" onchange="syncFromUnit('${g.id}');convertUnit('${g.id}')">
+            ${g.units.map((u,i)=>`<option value="${i}">${u}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <div style="font-size:18px;color:${g.color}">⇅</div>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+
+      <div id="cv_${g.id}_results" style="display:flex;flex-direction:column;gap:6px">
+        ${g.units.map((u,i)=>`
+          <div class="conv-row" id="cv_${g.id}_row_${i}" style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:10px 14px;border:1px solid var(--border)">
+            <span style="font-size:12px;color:var(--muted)">${u}</span>
+            <span id="cv_${g.id}_res_${i}" style="font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:${g.color}">—</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="memo-sec-title" style="padding:0 0 8px">Références rapides</div>
+        <div class="memo-g">
+          ${g.memo.map(m=>`<div class="memo-i"><div class="ml">${m.l}</div><div class="mv" style="color:${g.color}">${m.v}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function syncFromUnit(gid){
+  const g = CONV_GROUPS.find(x=>x.id===gid);
+  const idx = parseInt(document.getElementById(`cv_${gid}_from`).value);
+  document.getElementById(`cv_${gid}_iu`).textContent = g.units[idx];
+}
+
+function convertUnit(gid){
+  const g = CONV_GROUPS.find(x=>x.id===gid);
+  const val = parseFloat(document.getElementById(`cv_${gid}_val`).value);
+  const fromIdx = parseInt(document.getElementById(`cv_${gid}_from`).value);
+
+  if(isNaN(val)){
+    g.units.forEach((_,i)=>{ document.getElementById(`cv_${gid}_res_${i}`).textContent = '—'; });
+    return;
+  }
+
+  if(g.isTemp){
+    // Convert everything to °C first
+    let celsius;
+    if(fromIdx===0) celsius = val;
+    else if(fromIdx===1) celsius = (val - 32) * 5/9;
+    else celsius = val - 273.15;
+
+    const results = [celsius, celsius*9/5+32, celsius+273.15];
+    g.units.forEach((_,i)=>{
+      const r = results[i];
+      document.getElementById(`cv_${gid}_res_${i}`).textContent = i===fromIdx ? `${formatNum(val)} ✓` : formatNum(r);
+    });
+    return;
+  }
+
+  if(g.isConc){
+    // Convert to mg/mL base
+    const toMgMl = [1, 0.001, 1, 0.001, 1];
+    const baseVal = val * toMgMl[fromIdx];
+    const fromMgMl = [1, 1000, 1, 1000, 1];
+    g.units.forEach((_,i)=>{
+      const r = baseVal * fromMgMl[i];
+      document.getElementById(`cv_${gid}_res_${i}`).textContent = i===fromIdx ? `${formatNum(val)} ✓` : formatNum(r);
+    });
+    return;
+  }
+
+  if(g.isDebit){
+    // Convert to mL/h base: [1, 60, 0.001, 1000, 3, 1]
+    const toBase = [1, 60, 0.001, 1000, 3, 1];
+    const fromBase = [1, 1/60, 1000, 0.001, 1/3, 1];
+    const baseVal = val * toBase[fromIdx];
+    g.units.forEach((_,i)=>{
+      const r = baseVal * fromBase[i];
+      document.getElementById(`cv_${gid}_res_${i}`).textContent = i===fromIdx ? `${formatNum(val)} ✓` : formatNum(r);
+    });
+    return;
+  }
+
+  // Standard: convert via factors (all in base unit = factors[0])
+  const baseVal = val * g.factors[fromIdx]; // en unité de base
+  g.units.forEach((_,i)=>{
+    const r = baseVal / g.factors[i];
+    document.getElementById(`cv_${gid}_res_${i}`).textContent = i===fromIdx ? `${formatNum(val)} ✓` : formatNum(r);
+  });
+}
+
+function formatNum(n){
+  if(n === 0) return '0';
+  if(Math.abs(n) >= 0.001 && Math.abs(n) < 1e7){
+    // use up to 6 sig figs, remove trailing zeros
+    let s = parseFloat(n.toPrecision(6)).toString();
+    return s;
+  }
+  return n.toExponential(3);
+}
+
+// ─── OUTILS ───
+const TOOLS = {
+  perfusion: {
+    title:'💧 Perfusion IV',
+    sub:'Débit mL/h et gouttes/min',
+    color:'#34d399',
+    color2:'#38bdf8',
+    render: () => `
+      <div class="tool-block" style="--tc:#34d399">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#34d399,#38bdf8)"></div>
+        <div class="tool-block-title">Débit de perfusion</div>
+        <div class="tool-block-desc">Calcule le débit à programmer sur la pompe et le débit manuel en gouttes/min.</div>
+        <div class="formula" style="margin-bottom:14px">
+          Débit (mL/h) = <b>Volume (mL)</b> ÷ <b>Durée (h)</b><br>
+          Débit (gtt/min) = <b>mL/h × facteur</b> ÷ <b>60</b>
+        </div>
+        <div class="field"><div class="field-lbl">Volume total à perfuser</div>
+          <div class="iw"><input type="number" id="tp_vol" placeholder="ex: 500" step="any" inputmode="decimal"><span class="iu">mL</span></div>
+        </div>
+        <div class="field"><div class="field-lbl">Durée</div>
+          <div class="row">
+            <div class="iw"><input type="number" id="tp_h" placeholder="heures" step="1" inputmode="decimal"><span class="iu">h</span></div>
+            <div class="iw"><input type="number" id="tp_m" placeholder="min" step="1" min="0" max="59" inputmode="decimal"><span class="iu">min</span></div>
+          </div>
+        </div>
+        <div class="field"><div class="field-lbl">Type de perfuseur</div>
+          <select class="sel" id="tp_fac">
+            <option value="20">Macrogouttes — 20 gtt/mL (standard adulte)</option>
+            <option value="60">Microgouttes — 60 gtt/mL (pédiatrie)</option>
+            <option value="15">Sang / produits — 15 gtt/mL</option>
+          </select>
+        </div>
+        <button class="calc-btn" style="background:linear-gradient(135deg,#34d399,#38bdf8);margin-top:6px" onclick="calcPerf()">Calculer →</button>
+        <div class="tr-result show" id="tr_perf" style="background:rgba(52,211,153,.07);border-color:rgba(52,211,153,.2);display:none">
+          <div class="multi-result">
+            <div class="mr-item">
+              <div class="mr-lbl">Débit pompe</div>
+              <div class="mr-val" id="tr_mlh" style="color:#34d399">—</div>
+              <div class="mr-unit">mL / heure</div>
+            </div>
+            <div class="mr-item">
+              <div class="mr-lbl">Débit manuel</div>
+              <div class="mr-val" id="tr_gtt" style="color:#38bdf8">—</div>
+              <div class="mr-unit">gtt / min</div>
+            </div>
+          </div>
+          <div class="r-detail" id="tr_perf_det"></div>
+        </div>
+        <div class="err-box" id="tr_perf_err">⚠️ Renseigne un volume et une durée valides.</div>
+      </div>
+      <div class="memo-sec" style="padding:0">
+        <div class="memo-sec-title" style="padding:0 0 10px">Rappels pratiques</div>
+        <div class="memo-g">
+          <div class="memo-i"><div class="ml">Macrogouttes</div><div class="mv" style="color:#34d399">1 mL = 20 gtt</div></div>
+          <div class="memo-i"><div class="ml">Microgouttes</div><div class="mv" style="color:#38bdf8">1 mL = 60 gtt</div></div>
+          <div class="memo-i"><div class="ml">NaCl 0,9%</div><div class="mv">9 g/L de NaCl</div></div>
+          <div class="memo-i"><div class="ml">G5% isotonique</div><div class="mv">50 g/L glucose</div></div>
+        </div>
+      </div>
+    `
+  },
+
+  pse: {
+    title:'💉 Pousse-seringue (PSE)',
+    sub:'Concentration · Débit horaire',
+    color:'#a78bfa',
+    color2:'#f472b6',
+    render: () => `
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#a78bfa,#f472b6)"></div>
+        <div class="tool-block-title">Calcul débit PSE</div>
+        <div class="tool-block-desc">Concentration de la seringue et débit à programmer selon la dose horaire souhaitée.</div>
+        <div class="formula">
+          Concentration = <b>Qté médicament</b> ÷ <b>Volume seringue</b><br>
+          Débit (mL/h) = <b>Dose/h souhaitée</b> ÷ <b>Concentration</b>
+        </div>
+        <div class="field"><div class="field-lbl">Médicament dans la seringue</div>
+          <div class="row">
+            <div class="iw"><input type="number" id="tp_sap_qty" placeholder="ex: 50" step="any" inputmode="decimal"><span class="iu" id="tp_sap_unit_qty">mg</span></div>
+            <span style="display:flex;align-items:center;color:var(--muted);font-size:13px;padding:0 4px">dans</span>
+            <div class="iw"><input type="number" id="tp_sap_vol" placeholder="ex: 50" step="any" inputmode="decimal"><span class="iu">mL</span></div>
+          </div>
+        </div>
+        <div class="field"><div class="field-lbl">Dose souhaitée / heure</div>
+          <div class="row">
+            <div class="iw" style="flex:2"><input type="number" id="tp_sap_dose" placeholder="ex: 5" step="any" inputmode="decimal"><span class="iu" id="tp_sap_dunit">mg/h</span></div>
+            <select class="sel" id="tp_sap_unit" style="flex:1" onchange="document.getElementById('tp_sap_dunit').textContent=this.value;document.getElementById('tp_sap_unit_qty').textContent=this.value.replace('/h','')">
+              <option value="mg/h">mg/h</option>
+              <option value="mcg/h">mcg/h</option>
+              <option value="UI/h">UI/h</option>
+            </select>
+          </div>
+        </div>
+        <button class="calc-btn" style="background:linear-gradient(135deg,#a78bfa,#f472b6);margin-top:6px" onclick="calcPSE()">Calculer →</button>
+        <div class="tr-result" id="tr_pse" style="background:rgba(167,139,250,.07);border-color:rgba(167,139,250,.2)">
+          <div class="multi-result">
+            <div class="mr-item">
+              <div class="mr-lbl">Concentration</div>
+              <div class="mr-val" id="tr_pse_conc" style="color:#a78bfa">—</div>
+              <div class="mr-unit" id="tr_pse_conc_unit">mg/mL</div>
+            </div>
+            <div class="mr-item">
+              <div class="mr-lbl">Débit PSE</div>
+              <div class="mr-val" id="tr_pse_debit" style="color:#f472b6">—</div>
+              <div class="mr-unit">mL / heure</div>
+            </div>
+          </div>
+          <div class="r-detail" id="tr_pse_det"></div>
+        </div>
+        <div class="err-box" id="tr_pse_err">⚠️ Vérifie que tous les champs sont remplis et non nuls.</div>
+      </div>
+      <div class="memo-sec" style="padding:0">
+        <div class="memo-sec-title" style="padding:0 0 10px">PSE de référence</div>
+        <div class="memo-g">
+          <div class="memo-i"><div class="ml">Morphine standard</div><div class="mv" style="color:#a78bfa">1 mg/mL<br>(10 mg/10 mL)</div></div>
+          <div class="memo-i"><div class="ml">Héparine</div><div class="mv" style="color:#f472b6">500 UI/mL<br>(25000 UI/50 mL)</div></div>
+          <div class="memo-i"><div class="ml">Insuline</div><div class="mv" style="color:#a78bfa">1 UI/mL<br>(50 UI/50 mL)</div></div>
+          <div class="memo-i"><div class="ml">Dobutamine</div><div class="mv" style="color:#f472b6">1 mg/mL<br>(250 mg/250 mL)</div></div>
+        </div>
+      </div>
+    `
+  },
+
+  pca: {
+    title:'🎛️ PCA — Analgésie patient',
+    sub:'Débit de fond · Bolus · Réfractaire',
+    color:'#f472b6',
+    color2:'#f97316',
+    render: () => `
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#f472b6,#f97316)"></div>
+        <div class="tool-block-title">Programmation PCA</div>
+        <div class="tool-block-desc">Calcule concentration, débit de fond et volume bolus pour une pompe PCA (morphine ou équivalent).</div>
+        <div class="formula">
+          Conc = <b>Qté (mg)</b> ÷ <b>Volume (mL)</b><br>
+          Débit base (mL/h) = <b>Dose base</b> ÷ <b>Conc</b><br>
+          Vol bolus (mL) = <b>Dose bolus</b> ÷ <b>Conc</b>
+        </div>
+        <div class="field"><div class="field-lbl">Médicament dans la seringue PCA</div>
+          <div class="row">
+            <div class="iw"><input type="number" id="tp_pca_qty" placeholder="ex: 50" step="any" inputmode="decimal"><span class="iu">mg</span></div>
+            <span style="display:flex;align-items:center;color:var(--muted);font-size:13px;padding:0 4px">dans</span>
+            <div class="iw"><input type="number" id="tp_pca_vol" placeholder="ex: 50" step="any" inputmode="decimal"><span class="iu">mL</span></div>
+          </div>
+        </div>
+        <div class="field"><div class="field-lbl">Débit de base continu <span class="field-hint">— 0 si pas de débit de fond</span></div>
+          <div class="iw"><input type="number" id="tp_pca_base" placeholder="ex: 1" step="any" min="0" inputmode="decimal"><span class="iu">mg/h</span></div>
+        </div>
+        <div class="field"><div class="field-lbl">Dose bolus à la demande</div>
+          <div class="iw"><input type="number" id="tp_pca_bolus" placeholder="ex: 1" step="any" inputmode="decimal"><span class="iu">mg</span></div>
+        </div>
+        <div class="field"><div class="field-lbl">Période réfractaire</div>
+          <div class="iw"><input type="number" id="tp_pca_lock" placeholder="ex: 7" step="1" inputmode="decimal"><span class="iu">min</span></div>
+        </div>
+        <div class="field"><div class="field-lbl">Dose max sur 4 heures <span class="field-hint">— sécurité</span></div>
+          <div class="iw"><input type="number" id="tp_pca_max" placeholder="ex: 20" step="any" inputmode="decimal"><span class="iu">mg</span></div>
+        </div>
+        <button class="calc-btn" style="background:linear-gradient(135deg,#f472b6,#f97316);margin-top:6px" onclick="calcPCA()">Calculer →</button>
+        <div class="tr-result" id="tr_pca" style="background:rgba(244,114,182,.07);border-color:rgba(244,114,182,.2)">
+          <div class="r-label">Concentration seringue</div>
+          <div class="r-val" id="tr_pca_conc" style="color:#f472b6;font-family:Clash Display,sans-serif;font-size:32px;font-weight:700;margin-bottom:3px">—</div>
+          <div class="r-unit" style="font-size:13px;color:var(--muted);margin-bottom:12px">mg/mL</div>
+          <div class="multi-result">
+            <div class="mr-item">
+              <div class="mr-lbl">Débit de base</div>
+              <div class="mr-val" id="tr_pca_base" style="color:#f472b6">—</div>
+              <div class="mr-unit">mL/h</div>
+            </div>
+            <div class="mr-item">
+              <div class="mr-lbl">Volume bolus</div>
+              <div class="mr-val" id="tr_pca_bolus" style="color:#f97316">—</div>
+              <div class="mr-unit">mL</div>
+            </div>
+          </div>
+          <div class="r-detail" id="tr_pca_det"></div>
+        </div>
+        <div class="err-box" id="tr_pca_err">⚠️ Renseigne au minimum la quantité, le volume et la dose bolus.</div>
+      </div>
+      <div class="memo-sec" style="padding:0">
+        <div class="memo-sec-title" style="padding:0 0 10px">Protocoles PCA courants</div>
+        <div class="memo-g">
+          <div class="memo-i memo-full"><div class="ml">Morphine adulte standard</div><div class="mv" style="color:#f472b6">1 mg/mL · Bolus 1 mg · Réfractaire 7 min · Max 20 mg/4h</div></div>
+          <div class="memo-i"><div class="ml">Débit de fond</div><div class="mv">Souvent 0<br>ou 0,5–1 mg/h</div></div>
+          <div class="memo-i"><div class="ml">⚠️ Antidote</div><div class="mv" style="color:#fb7185">Naloxone 0,4 mg IVD si FR &lt; 10</div></div>
+        </div>
+      </div>
+    `
+  },
+
+  generique: {
+    title:'🧮 Dose générique',
+    sub:'Règle de 3 · mg/kg · Surface corporelle',
+    color:'#38bdf8',
+    color2:'#a78bfa',
+    render: () => `
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#38bdf8,#a78bfa)"></div>
+        <div class="tool-block-title">Règle de trois — Volume à prélever</div>
+        <div class="tool-block-desc">Volume à prélever pour n'importe quel médicament à partir de la dose prescrite et de la concentration disponible.</div>
+        <div class="formula">Volume (mL) = <b>Dose prescrite</b> ÷ (<b>Qté disponible</b> / <b>Vol disponible</b>)</div>
+        <div class="field"><div class="field-lbl">Dose prescrite</div>
+          <div class="row">
+            <div class="iw" style="flex:2"><input type="number" id="tg_dose" placeholder="ex: 500" step="any" inputmode="decimal"><span class="iu" id="tg_dose_u">mg</span></div>
+            <select class="sel" id="tg_unit" style="flex:1" onchange="document.getElementById('tg_dose_u').textContent=this.value;document.getElementById('tg_qty_u').textContent=this.value">
+              <option value="mg">mg</option><option value="g">g</option><option value="mcg">mcg</option><option value="UI">UI</option><option value="mmol">mmol</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-lbl">Disponible dans l'ampoule / flacon</div>
+          <div class="row">
+            <div class="iw"><input type="number" id="tg_qty" placeholder="ex: 1000" step="any" inputmode="decimal"><span class="iu" id="tg_qty_u">mg</span></div>
+            <span style="display:flex;align-items:center;color:var(--muted);font-size:13px;padding:0 4px">dans</span>
+            <div class="iw"><input type="number" id="tg_vol" placeholder="ex: 10" step="any" inputmode="decimal"><span class="iu">mL</span></div>
+          </div>
+        </div>
+        <button class="calc-btn" style="background:linear-gradient(135deg,#38bdf8,#a78bfa);margin-top:6px" onclick="calcGen()">Calculer →</button>
+        <div class="tr-result" id="tr_gen" style="background:rgba(56,189,248,.07);border-color:rgba(56,189,248,.2)">
+          <div class="r-label">Volume à prélever</div>
+          <div class="r-val" id="tr_gen_val" style="color:#38bdf8;font-family:Clash Display,sans-serif;font-size:38px;font-weight:700;margin-bottom:3px">—</div>
+          <div class="r-unit" style="font-size:13px;color:var(--muted);margin-bottom:10px">mL</div>
+          <div class="r-detail" id="tr_gen_det"></div>
+        </div>
+        <div class="err-box" id="tr_gen_err">⚠️ Tous les champs doivent être remplis et non nuls.</div>
+      </div>
+
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#38bdf8,#a78bfa)"></div>
+        <div class="tool-block-title">Dose selon le poids / Surface corporelle</div>
+        <div class="tool-block-desc">Calcule la dose totale en mg/kg ou mg/m² (formule Mosteller).</div>
+        <div class="formula">
+          Dose totale = <b>mg/kg</b> × <b>Poids</b><br>
+          SC (m²) = √(<b>Poids × Taille</b> / 3600)
+        </div>
+        <div class="field"><div class="field-lbl">Posologie prescrite</div>
+          <div class="row">
+            <div class="iw" style="flex:2"><input type="number" id="tg2_dose" placeholder="ex: 5" step="any" inputmode="decimal"></div>
+            <select class="sel" id="tg2_mode" style="flex:2">
+              <option value="mgkg">mg/kg</option>
+              <option value="mcgkg">mcg/kg</option>
+              <option value="m2">mg/m²</option>
+              <option value="mcgkgmin">mcg/kg/min</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><div class="field-lbl">Poids du patient</div>
+          <div class="iw"><input type="number" id="tg2_poids" placeholder="ex: 70" step="0.1" inputmode="decimal"><span class="iu">kg</span></div>
+        </div>
+        <div class="field" id="tg2_taille_field"><div class="field-lbl">Taille <span class="field-hint">— requis pour SC (m²)</span></div>
+          <div class="iw"><input type="number" id="tg2_taille" placeholder="ex: 170" step="1" inputmode="decimal"><span class="iu">cm</span></div>
+        </div>
+        <button class="calc-btn" style="background:linear-gradient(135deg,#38bdf8,#a78bfa);margin-top:6px" onclick="calcGenPoids()">Calculer →</button>
+        <div class="tr-result" id="tr_gen2" style="background:rgba(167,139,250,.07);border-color:rgba(167,139,250,.2)">
+          <div class="r-label">Dose totale</div>
+          <div class="r-val" id="tr_gen2_val" style="color:#a78bfa;font-family:Clash Display,sans-serif;font-size:38px;font-weight:700;margin-bottom:3px">—</div>
+          <div class="r-unit" id="tr_gen2_unit" style="font-size:13px;color:var(--muted);margin-bottom:10px">mg</div>
+          <div class="r-detail" id="tr_gen2_det"></div>
+        </div>
+        <div class="err-box" id="tr_gen2_err">⚠️ Vérifie que tous les champs nécessaires sont remplis.</div>
+      </div>
+    `
+  }
+};
+
+function openTool(id){
+  const tool = TOOLS[id];
+  if(!tool) return;
+  document.getElementById('tool-title').textContent = tool.title;
+  document.getElementById('tool-sub').textContent = tool.sub;
+  document.getElementById('tool-content').innerHTML = tool.render();
+  document.getElementById('screen-tools').classList.remove('active');
+  document.getElementById('screen-tool-detail').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ─── CALCULS OUTILS ───
+function calcPerf(){
+  const vol = parseFloat(document.getElementById('tp_vol').value);
+  const h = parseFloat(document.getElementById('tp_h').value)||0;
+  const m = parseFloat(document.getElementById('tp_m').value)||0;
+  const fac = parseInt(document.getElementById('tp_fac').value);
+  const totalH = h + m/60;
+  const rb = document.getElementById('tr_perf'), eb = document.getElementById('tr_perf_err');
+  if(!vol || totalH<=0){ rb.style.display='none'; eb.classList.add('show'); return; }
+  eb.classList.remove('show');
+  const mlh = vol/totalH, gtt = (mlh*fac)/60;
+  document.getElementById('tr_mlh').textContent = r2(mlh);
+  document.getElementById('tr_gtt').textContent = r2(gtt);
+  const dur = h>0&&m>0?`${h}h${String(Math.round(m)).padStart(2,'0')}`:h>0?`${h}h`:`${Math.round(m)} min`;
+  document.getElementById('tr_perf_det').innerHTML = `Volume : <strong>${vol} mL</strong> sur <strong>${dur}</strong><br>→ <strong>${r2(gtt)} gtt/min</strong> = compter <strong>${r2(gtt/4)} gtt/15 sec</strong>`;
+  rb.style.display='block';
+}
+
+function calcPSE(){
+  const qty = parseFloat(document.getElementById('tp_sap_qty').value);
+  const vol = parseFloat(document.getElementById('tp_sap_vol').value);
+  const dose = parseFloat(document.getElementById('tp_sap_dose').value);
+  const unit = document.getElementById('tp_sap_unit').value;
+  const rb = document.getElementById('tr_pse'), eb = document.getElementById('tr_pse_err');
+  if(!qty||!vol||!dose||vol===0){ rb.classList.remove('show'); eb.classList.add('show'); return; }
+  eb.classList.remove('show');
+  const conc = qty/vol, debit = dose/conc;
+  const du = unit.replace('/h','');
+  document.getElementById('tr_pse_conc').textContent = r3(conc);
+  document.getElementById('tr_pse_conc_unit').textContent = `${du}/mL`;
+  document.getElementById('tr_pse_debit').textContent = r2(debit);
+  document.getElementById('tr_pse_det').innerHTML = `Seringue : <strong>${qty} ${du}</strong> dans <strong>${vol} mL</strong><br>Concentration : <strong>${r3(conc)} ${du}/mL</strong><br>Pour <strong>${dose} ${unit}</strong> → débit : <strong>${r2(debit)} mL/h</strong>`;
+  rb.classList.add('show');
+}
+
+function calcPCA(){
+  const qty = parseFloat(document.getElementById('tp_pca_qty').value);
+  const vol = parseFloat(document.getElementById('tp_pca_vol').value);
+  const base = parseFloat(document.getElementById('tp_pca_base').value)||0;
+  const bolus = parseFloat(document.getElementById('tp_pca_bolus').value);
+  const lock = parseFloat(document.getElementById('tp_pca_lock').value)||null;
+  const max4h = parseFloat(document.getElementById('tp_pca_max').value)||null;
+  const rb = document.getElementById('tr_pca'), eb = document.getElementById('tr_pca_err');
+  if(!qty||!vol||!bolus||vol===0){ rb.classList.remove('show'); eb.classList.add('show'); return; }
+  eb.classList.remove('show');
+  const conc = qty/vol;
+  const debitBase = base/conc;
+  const volBolus = bolus/conc;
+  document.getElementById('tr_pca_conc').textContent = r3(conc);
+  document.getElementById('tr_pca_base').textContent = base>0?r2(debitBase):'0';
+  document.getElementById('tr_pca_bolus').textContent = r3(volBolus);
+  const bolusMaxH = lock ? Math.floor(60/lock) : '?';
+  document.getElementById('tr_pca_det').innerHTML =
+    `Débit de base : <strong>${base>0?r2(debitBase)+' mL/h':'Pas de débit de fond'}</strong><br>` +
+    `Bolus : <strong>${bolus} mg → ${r3(volBolus)} mL</strong>${lock?` — réfractaire : <strong>${lock} min</strong>`:''}<br>` +
+    (max4h?`Dose max 4h : <strong>${max4h} mg</strong><br>`:'') +
+    (lock?`Bolus max théorique/h : <strong>${bolusMaxH} bolus/h</strong>`:'');
+  rb.classList.add('show');
+}
+
+function calcGen(){
+  const dose = parseFloat(document.getElementById('tg_dose').value);
+  const qty = parseFloat(document.getElementById('tg_qty').value);
+  const vol = parseFloat(document.getElementById('tg_vol').value);
+  const unit = document.getElementById('tg_unit').value;
+  const rb = document.getElementById('tr_gen'), eb = document.getElementById('tr_gen_err');
+  if(!dose||!qty||!vol||qty===0){ rb.classList.remove('show'); eb.classList.add('show'); return; }
+  eb.classList.remove('show');
+  const conc = qty/vol, res = dose/conc;
+  document.getElementById('tr_gen_val').textContent = r3(res);
+  document.getElementById('tr_gen_det').innerHTML = `Concentration : <strong>${r3(conc)} ${unit}/mL</strong><br>${dose} ${unit} ÷ ${r3(conc)} ${unit}/mL = <strong>${r3(res)} mL</strong>`;
+  rb.classList.add('show');
+}
+
+function calcGenPoids(){
+  const dose = parseFloat(document.getElementById('tg2_dose').value);
+  const poids = parseFloat(document.getElementById('tg2_poids').value);
+  const taille = parseFloat(document.getElementById('tg2_taille').value);
+  const mode = document.getElementById('tg2_mode').value;
+  const rb = document.getElementById('tr_gen2'), eb = document.getElementById('tr_gen2_err');
+  if(!dose||!poids){ rb.classList.remove('show'); eb.classList.add('show'); return; }
+  if(mode==='m2'&&!taille){ rb.classList.remove('show'); eb.classList.add('show'); return; }
+  eb.classList.remove('show');
+  let total, unit, detail;
+  if(mode==='mgkg'){ total=dose*poids; unit='mg'; detail=`${dose} mg/kg × ${poids} kg`; }
+  else if(mode==='mcgkg'){ total=dose*poids; unit='mcg'; detail=`${dose} mcg/kg × ${poids} kg`; }
+  else if(mode==='mcgkgmin'){ total=dose*poids; unit='mcg/min'; detail=`${dose} mcg/kg/min × ${poids} kg<br>→ <strong>${r2(total*60)} mcg/h</strong> — <strong>${r2(total*60/1000)} mg/h</strong>`; }
+  else if(mode==='m2'){ const sc=Math.sqrt((poids*taille)/3600); total=dose*sc; unit='mg'; detail=`SC Mosteller = √(${poids}×${taille}/3600) = <strong>${r3(sc)} m²</strong><br>${dose} mg/m² × ${r3(sc)} m²`; }
+  document.getElementById('tr_gen2_val').textContent = r2(total);
+  document.getElementById('tr_gen2_unit').textContent = unit;
+  document.getElementById('tr_gen2_det').innerHTML = detail;
+  rb.classList.add('show');
+}
+
+function openModal(){ document.getElementById('disclaimerModal').classList.add('open'); }
+function closeModal(){ document.getElementById('disclaimerModal').classList.remove('open'); }
+
+// Enter key
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.getElementById('screen-detail').classList.contains('active')){
+    if(currentCalcTab > 0) runCalc();
+  }
+});
+
+// Init
+buildClassRow();
+renderList();
+openModal();
+
+// Enregistrement Service Worker (PWA)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('SW enregistré'))
+      .catch(err => console.log('SW erreur:', err));
+  });
+}
+</script>
+</body>
+</html>
