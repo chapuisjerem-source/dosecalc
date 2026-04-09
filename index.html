@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="DoseCalc">
 <meta name="description" content="Calculateur de doses médicamenteuses pour étudiants infirmiers. Perfusion, PSE, PCA, conversions d'unités.">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>DoseCalc — Calcul de doses infirmier</title>
 <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Epilogue:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -428,6 +428,162 @@ input[type=number] { -moz-appearance:textfield; }
 .nav-it.active svg { color:#38bdf8 !important; }
 #nav-conv.active .nav-lbl { color:#fbbf24; }
 #nav-conv.active svg { color:#fbbf24 !important; }
+#nav-contact.active .nav-lbl { color:#34d399; }
+#nav-contact.active svg { color:#34d399 !important; }
+#nav-don.active .nav-lbl { color:#fbbf24; }
+#nav-don.active svg { color:#fbbf24 !important; }
+#nav-actu.active .nav-lbl { color:#f472b6; }
+#nav-actu.active svg { color:#f472b6 !important; }
+
+/* ─── ACTU ─── */
+.actu-tab {
+  flex-shrink:0; padding:8px 16px; border-radius:50px;
+  font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+  border:1.5px solid var(--border2); background:var(--card);
+  color:var(--muted); transition:all .2s;
+}
+.actu-tab.active { background:linear-gradient(135deg,#f472b6,#fbbf24); border-color:transparent; color:#060d1a; }
+
+.rss-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:16px; margin-bottom:10px;
+  cursor:pointer; transition:all .2s; text-decoration:none; display:block;
+}
+.rss-card:active { transform:scale(.98); }
+.rss-card:hover { border-color:var(--border2); }
+.rss-source { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:#f472b6; margin-bottom:6px; }
+.rss-title { font-size:14px; font-weight:600; line-height:1.4; color:var(--text); margin-bottom:6px; }
+.rss-date { font-size:11px; color:var(--muted); }
+.rss-loading { text-align:center; padding:40px 20px; color:var(--muted); font-size:14px; }
+
+.regl-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px; margin-bottom:12px;
+  position:relative; overflow:hidden; cursor:pointer;
+  transition:all .2s;
+}
+.regl-card:active { transform:scale(.98); }
+.regl-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.regl-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:10px; }
+.regl-icon { font-size:24px; flex-shrink:0; }
+.regl-tag { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; text-transform:uppercase; letter-spacing:.4px; }
+.regl-title { font-family:'Clash Display',sans-serif; font-size:15px; font-weight:600; margin-bottom:6px; }
+.regl-desc { font-size:13px; color:var(--muted); line-height:1.5; }
+.regl-detail { display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:13px; line-height:1.6; color:var(--text); }
+.regl-detail.open { display:block; animation:fadeUp .3s ease; }
+.regl-detail ul { padding-left:16px; margin-top:6px; }
+.regl-detail li { margin-bottom:4px; }
+#nav-qcm.active .nav-lbl { color:#34d399; }
+#nav-qcm.active svg { color:#34d399 !important; }
+
+/* ─── QCM ─── */
+.qcm-home-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:18px; margin-bottom:12px;
+  cursor:pointer; transition:all .2s; position:relative; overflow:hidden;
+}
+.qcm-home-card:active { transform:scale(.98); }
+.qcm-home-card:hover { border-color:var(--border2); box-shadow:0 6px 24px rgba(0,0,0,.3); }
+.qcm-home-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+
+.qcm-progress {
+  background:var(--card2); border-radius:8px; height:6px; margin:12px 0 4px; overflow:hidden;
+}
+.qcm-progress-bar { height:100%; border-radius:8px; transition:width .4s ease; }
+
+.qcm-question-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:18px; padding:20px; margin-bottom:12px;
+  position:relative; overflow:hidden;
+}
+
+.qcm-opt {
+  background:var(--card2); border:2px solid var(--border2);
+  border-radius:13px; padding:14px 16px; margin-bottom:10px;
+  cursor:pointer; font-size:14px; line-height:1.4;
+  transition:all .2s; display:flex; align-items:center; gap:12px;
+}
+.qcm-opt:active { transform:scale(.98); }
+.qcm-opt .opt-letter {
+  width:28px; height:28px; border-radius:8px; flex-shrink:0;
+  background:rgba(255,255,255,.07); display:flex; align-items:center;
+  justify-content:center; font-family:'Clash Display',sans-serif;
+  font-weight:700; font-size:13px; color:var(--muted);
+}
+.qcm-opt.selected { border-color:#34d399; background:rgba(52,211,153,.08); }
+.qcm-opt.selected .opt-letter { background:#34d399; color:#060d1a; }
+.qcm-opt.correct { border-color:#34d399; background:rgba(52,211,153,.12); }
+.qcm-opt.correct .opt-letter { background:#34d399; color:#060d1a; }
+.qcm-opt.wrong { border-color:#fb7185; background:rgba(251,113,133,.1); }
+.qcm-opt.wrong .opt-letter { background:#fb7185; color:white; }
+.qcm-opt.disabled { pointer-events:none; opacity:.6; }
+
+.qcm-explication {
+  background:rgba(52,211,153,.07); border:1px solid rgba(52,211,153,.2);
+  border-radius:13px; padding:14px 16px; margin-top:12px;
+  font-size:13px; color:var(--text); line-height:1.6;
+  animation:fadeUp .3s ease;
+}
+.qcm-explication.wrong-exp {
+  background:rgba(251,113,133,.07); border-color:rgba(251,113,133,.2);
+}
+
+.qcm-result-card {
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:20px; padding:28px 20px; text-align:center;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+.qcm-result-score {
+  font-family:'Clash Display',sans-serif; font-size:64px;
+  font-weight:800; line-height:1; margin:16px 0 8px;
+}
+.qcm-result-label { font-size:14px; color:var(--muted); margin-bottom:20px; }
+
+/* ─── HISTORIQUE ─── */
+.hist-item {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:15px 16px; margin-bottom:10px;
+  animation:fadeUp .3s ease; cursor:pointer; transition:border-color .2s;
+  position:relative; overflow:hidden;
+}
+.hist-item:hover { border-color:var(--border2); }
+.hist-item::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:3px; border-radius:3px 0 0 3px;
+}
+.hist-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.hist-name { font-family:'Clash Display',sans-serif; font-size:14px; font-weight:600; }
+.hist-time { font-size:11px; color:var(--muted); }
+.hist-calc { font-size:12px; color:var(--muted); margin-bottom:8px; }
+.hist-result {
+  font-family:'DM Mono',monospace; font-size:16px; font-weight:600;
+}
+.hist-empty {
+  text-align:center; padding:60px 20px; color:var(--muted);
+}
+.hist-empty .he-icon { font-size:44px; margin-bottom:12px; }
+.hist-empty p { font-size:14px; line-height:1.5; }
+
+/* ─── DON BUTTONS ─── */
+.don-btn {
+  background:var(--card2); border:2px solid var(--border2);
+  border-radius:16px; padding:16px 12px;
+  text-align:center; cursor:pointer;
+  transition:all .2s; display:flex; flex-direction:column;
+  align-items:center; gap:6px;
+}
+.don-btn:active { transform:scale(.96); }
+.don-btn.selected {
+  border-color:#fbbf24;
+  background:rgba(251,191,36,.08);
+  box-shadow:0 0 0 3px rgba(251,191,36,.15);
+}
+
+/* ─── SCREEN CONVERSIONS déplacé ─── */
+#screen-conv .tools-title {
+  background:linear-gradient(120deg,#fbbf24,#f97316);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
 
 /* ─── OUTILS SCREEN ─── */
 .tools-header { padding:28px 20px 16px; }
@@ -638,27 +794,267 @@ input[type=number] { -moz-appearance:textfield; }
   ══════════════════════════════════════ -->
   <div class="screen" id="screen-conv">
     <div class="tools-header">
-      <div class="tools-title" style="background:linear-gradient(120deg,#fbbf24,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Conversions</div>
+      <div class="tools-title">Conversions</div>
       <div class="tools-sub">Unités de masse, volume, concentration et débit</div>
     </div>
     <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:14px" id="conv-content"></div>
   </div>
 
-</div>
+  <!-- ══════════════════════════════════════
+       SCREEN 6 — NOUS CONTACTER
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-contact">
+    <div class="tools-header">
+      <div class="tools-title" style="background:linear-gradient(120deg,#34d399,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Nous contacter</div>
+      <div class="tools-sub">Une question, un bug, une suggestion ?</div>
+    </div>
+    <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:14px">
+
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#34d399,#a78bfa)"></div>
+        <div class="tool-block-title">✉️ Envoyer un message</div>
+        <div class="tool-block-desc">Nous lisons tous les messages et répondons dans les 48h.</div>
+
+        <div class="field">
+          <div class="field-lbl">Votre nom</div>
+          <div class="iw"><input type="text" id="contact_nom" placeholder="ex: Marie Dupont" style="padding:11px 14px;font-family:Epilogue,sans-serif;font-size:15px"></div>
+        </div>
+
+        <div class="field">
+          <div class="field-lbl">Votre email</div>
+          <div class="iw"><input type="email" id="contact_email" placeholder="ex: marie@email.fr" style="padding:11px 14px;font-family:Epilogue,sans-serif;font-size:15px"></div>
+        </div>
+
+        <div class="field">
+          <div class="field-lbl">Sujet</div>
+          <select class="sel" id="contact_sujet">
+            <option value="">Choisir un sujet...</option>
+            <option value="bug">🐛 Signaler un bug</option>
+            <option value="suggestion">💡 Suggestion d'amélioration</option>
+            <option value="medicament">💊 Ajouter un médicament</option>
+            <option value="erreur">⚠️ Erreur dans un calcul</option>
+            <option value="autre">💬 Autre</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <div class="field-lbl">Message</div>
+          <textarea id="contact_msg" placeholder="Décrivez votre message..." style="width:100%;background:var(--card2);border:1.5px solid var(--border2);border-radius:11px;padding:12px 14px;color:var(--text);font-family:Epilogue,sans-serif;font-size:14px;outline:none;resize:none;height:120px;line-height:1.5;transition:border-color .2s" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"></textarea>
+        </div>
+
+        <button class="calc-btn" style="background:linear-gradient(135deg,#34d399,#a78bfa);margin-top:4px" onclick="envoyerContact()">
+          Envoyer le message →
+        </button>
+
+        <div id="contact_success" style="display:none;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:12px;padding:14px 16px;margin-top:12px;font-size:14px;color:#34d399;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)">
+          ✅ Message envoyé ! Nous vous répondrons sous 48h.
+        </div>
+        <div id="contact_error" style="display:none" class="err-box show">
+          ⚠️ Merci de remplir tous les champs obligatoires.
+        </div>
+      </div>
+
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#34d399,#a78bfa)"></div>
+        <div class="tool-block-title">📱 Réseaux sociaux</div>
+        <div class="memo-g" style="margin-top:4px">
+          <div class="memo-i" style="cursor:pointer" onclick="window.open('mailto:contact@dosecalc.fr','_blank')">
+            <div class="ml">Email direct</div>
+            <div class="mv" style="color:#34d399">contact@dosecalc.fr</div>
+          </div>
+          <div class="memo-i" style="cursor:pointer">
+            <div class="ml">Version</div>
+            <div class="mv" style="color:#a78bfa">DoseCalc v1.0 bêta</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 7 — FAIRE UN DON
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-don">
+    <div class="tools-header">
+      <div class="tools-title" style="background:linear-gradient(120deg,#fbbf24,#fb7185);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Soutenir DoseCalc</div>
+      <div class="tools-sub">100% gratuit, développé par un étudiant infirmier</div>
+    </div>
+    <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:14px">
+
+      <!-- MESSAGE -->
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#fbbf24,#fb7185)"></div>
+        <div style="font-size:32px;margin-bottom:12px">💛</div>
+        <div class="tool-block-title">Pourquoi faire un don ?</div>
+        <div style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:0">
+          DoseCalc est développé bénévolement par un étudiant infirmier de 3ème année pour aider ses collègues étudiants.<br><br>
+          Votre soutien permet de <strong style="color:var(--text)">maintenir l'hébergement</strong>, d'<strong style="color:var(--text)">ajouter de nouveaux médicaments</strong> et de <strong style="color:var(--text)">développer de nouvelles fonctionnalités</strong>.
+        </div>
+      </div>
+
+      <!-- MONTANTS PRÉDÉFINIS -->
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#fbbf24,#fb7185)"></div>
+        <div class="tool-block-title">☕ Choisir un montant</div>
+        <div class="tool-block-desc">Sélectionne le montant de ton choix.</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px" id="don_grid">
+          <div class="don-btn" data-amount="5" onclick="selectDon(5)">
+            <div style="font-size:22px">☕</div>
+            <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;color:#fbbf24">5€</div>
+            <div style="font-size:11px;color:var(--muted)">Un café</div>
+          </div>
+          <div class="don-btn" data-amount="10" onclick="selectDon(10)">
+            <div style="font-size:22px">🍕</div>
+            <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;color:#fbbf24">10€</div>
+            <div style="font-size:11px;color:var(--muted)">Une pizza</div>
+          </div>
+          <div class="don-btn" data-amount="15" onclick="selectDon(15)">
+            <div style="font-size:22px">📚</div>
+            <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;color:#fbbf24">15€</div>
+            <div style="font-size:11px;color:var(--muted)">Un livre</div>
+          </div>
+          <div class="don-btn" data-amount="20" onclick="selectDon(20)">
+            <div style="font-size:22px">🚀</div>
+            <div style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;color:#fbbf24">20€</div>
+            <div style="font-size:11px;color:var(--muted)">Super soutien</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-lbl">Ou un montant libre</div>
+          <div class="iw">
+            <input type="number" id="don_libre" placeholder="ex: 7" min="1" step="1" inputmode="decimal" oninput="selectDonLibre()" style="padding:11px 46px 11px 14px;font-family:'DM Mono',monospace;font-size:16px">
+            <span class="iu">€</span>
+          </div>
+        </div>
+
+        <div id="don_selected" style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:none;text-align:center">
+          <span style="font-size:13px;color:var(--muted)">Montant sélectionné : </span>
+          <span id="don_amount_display" style="font-family:'Clash Display',sans-serif;font-size:20px;font-weight:700;color:#fbbf24">—</span>
+        </div>
+
+        <button class="calc-btn" style="background:linear-gradient(135deg,#fbbf24,#fb7185)" onclick="faireUnDon()">
+          💛 Faire un don via PayPal →
+        </button>
+
+        <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.5">
+          Paiement sécurisé via PayPal · Vous pouvez donner sans compte PayPal avec une carte bancaire
+        </p>
+      </div>
+
+      <!-- AUTRES FAÇONS DE SOUTENIR -->
+      <div class="tool-block">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#fbbf24,#fb7185)"></div>
+        <div class="tool-block-title">🌟 Autres façons de soutenir</div>
+        <div class="memo-g" style="margin-top:8px">
+          <div class="memo-i memo-full" style="cursor:pointer" onclick="">
+            <div class="ml">⭐ Laisser un avis</div>
+            <div class="mv" style="color:#fbbf24">Sur le Google Play Store — ça aide énormément !</div>
+          </div>
+          <div class="memo-i" style="cursor:pointer">
+            <div class="ml">📢 Partager</div>
+            <div class="mv" style="color:#fbbf24">À tes collègues étudiants</div>
+          </div>
+          <div class="memo-i" style="cursor:pointer" onclick="showScreen('contact')">
+            <div class="ml">💡 Contribuer</div>
+            <div class="mv" style="color:#a78bfa">Suggérer des améliorations</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 10 — QCM
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-qcm">
+    <div class="tools-header" style="padding-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="tools-title" style="background:linear-gradient(120deg,#34d399,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">QCM</div>
+          <div class="tools-sub">Entraînement calcul de doses</div>
+        </div>
+        <div id="qcm-score-badge" style="display:none;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:5px 12px;font-size:12px;color:#34d399;font-weight:700"></div>
+      </div>
+    </div>
+    <div id="qcm-content" style="padding:0 20px 20px"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 9 — HISTORIQUE
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-history">
+    <div class="tools-header" style="padding-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="tools-title" style="background:linear-gradient(120deg,#fb7185,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Historique</div>
+          <div class="tools-sub">Vos 20 derniers calculs</div>
+        </div>
+        <div onclick="clearHistory()" style="background:rgba(251,113,133,.1);border:1px solid rgba(251,113,133,.2);border-radius:10px;padding:6px 12px;font-size:12px;color:#fb7185;cursor:pointer;font-weight:600">Effacer</div>
+      </div>
+    </div>
+    <div style="padding:0 20px 20px" id="history-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SCREEN 11 — ACTU & RÉGLEMENTATION
+  ══════════════════════════════════════ -->
+  <div class="screen" id="screen-actu">
+    <div class="tools-header" style="padding-bottom:8px">
+      <div class="tools-title" style="background:linear-gradient(120deg,#f472b6,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Actu Infirmier</div>
+      <div class="tools-sub">Actualités du métier · Réglementation · Réformes</div>
+    </div>
+
+    <!-- ONGLETS ACTU -->
+    <div style="display:flex;gap:8px;padding:0 20px 16px;overflow-x:auto;scrollbar-width:none">
+      <div class="actu-tab active" id="atab-rss" onclick="switchActuTab('rss')">📰 Actualités</div>
+      <div class="actu-tab" id="atab-regl" onclick="switchActuTab('regl')">⚖️ Réglementation</div>
+      <div class="actu-tab" id="atab-ipa" onclick="switchActuTab('ipa')">🎓 IPA & Réformes</div>
+    </div>
+
+    <div id="actu-content" style="padding:0 20px 20px"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       BOTTOM NAV
+  ══════════════════════════════════════ -->
 
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <div class="nav-it active" id="nav-tools" onclick="showScreen('tools')">
-    <svg width="22" height="22" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
-    <span class="nav-lbl">Calculateurs</span>
+    <svg width="20" height="20" fill="none" stroke="#38bdf8" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+    <span class="nav-lbl">Calcul</span>
+  </div>
+  <div class="nav-it" id="nav-qcm" onclick="showScreen('qcm')">
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span class="nav-lbl">QCM</span>
+  </div>
+  <div class="nav-it" id="nav-actu" onclick="showScreen('actu')">
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6Z"/></svg>
+    <span class="nav-lbl">Actu</span>
+  </div>
+  <div class="nav-it" id="nav-history" onclick="showScreen('history')">
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span class="nav-lbl">Historique</span>
   </div>
   <div class="nav-it" id="nav-conv" onclick="showScreen('conv')">
-    <svg width="22" height="22" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
-    <span class="nav-lbl">Conversions</span>
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/></svg>
+    <span class="nav-lbl">Conversion</span>
   </div>
   <div class="nav-it" id="nav-meds" onclick="showScreen('list')">
-    <svg width="22" height="22" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><rect x="9" y="1" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-    <span class="nav-lbl">Médicaments</span>
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><rect x="9" y="1" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    <span class="nav-lbl">Médic.</span>
+  </div>
+  <div class="nav-it" id="nav-contact" onclick="showScreen('contact')">
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <span class="nav-lbl">Contact</span>
+  </div>
+  <div class="nav-it" id="nav-don" onclick="showScreen('don')">
+    <svg width="20" height="20" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <span class="nav-lbl">Soutenir</span>
   </div>
 </nav>
 <div class="modal-bg" id="disclaimerModal">
@@ -1051,11 +1447,342 @@ const MEDS = [
       }
     ]
   },
-];
 
-// ═══════════════════════════════════════════════
-// LOGIQUE UI
-// ═══════════════════════════════════════════════
+  // ── NOUVEAUX MÉDICAMENTS (issus du TD + classiques) ──
+
+  // ANTIBIOTIQUES
+  {
+    id:'amikacine', name:'Amikacine', class:'antibiotiques', icon:'💉',
+    dci:'Sulfate d\'amikacine', indication:'Infections sévères — aminoside — Amiklin®',
+    formes:[
+      {label:'Flacon', val:'250 mg / 2 mL (125 mg/mL)'},
+      {label:'Flacon', val:'500 mg / 4 mL'},
+      {label:'Reconstitution', val:'Diluer dans 50–250 mL NaCl 0,9%'},
+    ],
+    posologies:[
+      {txt:'Adulte : 15 mg/kg/j en 1 injection IV (30 min)', color:'#38bdf8'},
+      {txt:'Enfant : 15–20 mg/kg/j en 1 injection', color:'#7dd3fc'},
+      {txt:'Durée max : 7–10 j — surveillance audiométrique', color:'#fb7185'},
+    ],
+    alertes:'Ototoxicité et néphrotoxicité · Doser les taux résiduels · Espacement en IRC · Ne pas mélanger avec bêtalactamines',
+    alerteColor:'rgba(56,189,248,.1)', alerteBorder:'#38bdf8',
+    calculs:[
+      {
+        id:'vol', title:'Volume à prélever',
+        desc:'Calcule le volume d\'amikacine à prélever selon la dose prescrite.',
+        formula:'Volume (mL) = <b>Dose (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg', placeholder:'ex: 220'},
+          {id:'qty', label:'Contenu du flacon', unit:'mg', placeholder:'ex: 250'},
+          {id:'vol', label:'Volume du flacon', unit:'mL', placeholder:'ex: 2'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const res = v.dose / c;
+          return { val: r2(res), unit:'mL', detail:`Concentration : <strong>${r2(c)} mg/mL</strong><br>${v.dose} mg ÷ ${r2(c)} mg/mL = <strong>${r2(res)} mL</strong>` };
+        }
+      },
+      {
+        id:'poids', title:'Dose selon le poids',
+        desc:'Calcule la dose d\'amikacine selon le poids du patient.',
+        formula:'Dose (mg) = <b>mg/kg/j</b> × <b>Poids (kg)</b>',
+        fields:[
+          {id:'mgkg', label:'Posologie prescrite', unit:'mg/kg/j', placeholder:'ex: 15'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+        ],
+        calc: v => {
+          const dose = v.mgkg * v.poids;
+          return { val: r0(dose), unit:'mg / jour', detail:`${v.mgkg} mg/kg/j × ${v.poids} kg = <strong>${r0(dose)} mg/j</strong> en 1 injection IV sur 30 min` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'metronidazole', name:'Métronidazole', class:'antibiotiques', icon:'🧪',
+    dci:'Métronidazole', indication:'Infections anaérobies — Flagyl® 500 mg/100 mL',
+    formes:[
+      {label:'Poche IV', val:'500 mg / 100 mL (5 mg/mL)'},
+      {label:'Comprimé', val:'250 mg · 500 mg'},
+    ],
+    posologies:[
+      {txt:'Adulte : 500 mg × 3/j IV (perfusion 30–60 min)', color:'#38bdf8'},
+      {txt:'Infections sévères : 1 g × 2/j', color:'#38bdf8'},
+      {txt:'Prophylaxie chirurgicale : 500 mg dose unique', color:'#7dd3fc'},
+    ],
+    alertes:'Eviter l\'alcool (effet antabuse) · Goût métallique · Neuropathie périphérique si traitement prolongé',
+    alerteColor:'rgba(56,189,248,.1)', alerteBorder:'#38bdf8',
+    calculs:[
+      {
+        id:'debit', title:'Débit de perfusion',
+        desc:'Calcule le débit en mL/h pour la poche de métronidazole.',
+        formula:'Débit (mL/h) = <b>Volume (mL)</b> ÷ <b>Durée (h)</b>',
+        fields:[
+          {id:'vol', label:'Volume de la poche', unit:'mL', placeholder:'ex: 100'},
+          {id:'duree', label:'Durée de perfusion', unit:'h', placeholder:'ex: 0.5'},
+        ],
+        calc: v => {
+          const debit = v.vol / v.duree;
+          return { val: r0(debit), unit:'mL/h', detail:`${v.vol} mL ÷ ${v.duree} h = <strong>${r0(debit)} mL/h</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'vancomycine', name:'Vancomycine', class:'antibiotiques', icon:'⚗️',
+    dci:'Chlorhydrate de vancomycine', indication:'Infections à SARM — Vancocin®',
+    formes:[
+      {label:'Flacon IV', val:'500 mg / 10 mL après reconstitution'},
+      {label:'Flacon IV', val:'1 g / 20 mL après reconstitution'},
+      {label:'Dilution', val:'Concentration max 5 mg/mL'},
+    ],
+    posologies:[
+      {txt:'Adulte : 15–20 mg/kg/12h IV lente (≥ 60 min)', color:'#38bdf8'},
+      {txt:'Objectif taux résiduel : 10–20 mg/L', color:'#fbbf24'},
+      {txt:'Adapter selon fonction rénale — DFG', color:'#fb7185'},
+    ],
+    alertes:'Perfusion lente obligatoire (risque Red Man Syndrome) · Surveiller créatininémie, ototoxicité · Doser taux résiduel avant 4ème dose',
+    alerteColor:'rgba(56,189,248,.1)', alerteBorder:'#38bdf8',
+    calculs:[
+      {
+        id:'poids', title:'Dose selon le poids',
+        desc:'Calcule la dose de vancomycine selon le poids et la posologie prescrite.',
+        formula:'Dose (mg) = <b>mg/kg</b> × <b>Poids (kg)</b>',
+        fields:[
+          {id:'mgkg', label:'Posologie prescrite', unit:'mg/kg', placeholder:'ex: 15'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+        ],
+        calc: v => {
+          const dose = v.mgkg * v.poids;
+          const duree = dose / 5 / 60; // durée min à 5mg/mL
+          return { val: r0(dose), unit:'mg / dose', detail:`${v.mgkg} mg/kg × ${v.poids} kg = <strong>${r0(dose)} mg</strong><br>Durée min de perfusion (5 mg/mL) : <strong>${r1(dose/5)} mL sur ≥ ${r0(dose/5/60*60)} min</strong>` };
+        }
+      }
+    ]
+  },
+
+  // CARDIOVASCULAIRES
+  {
+    id:'noradrenaline', name:'Noradrénaline', class:'cardiovasculaires', icon:'🔴',
+    dci:'Tartrate de noradrénaline', indication:'Choc septique — Vasopresseur — Levophed®',
+    formes:[
+      {label:'Ampoule', val:'8 mg / 4 mL (2 mg/mL)'},
+      {label:'PSE standard', val:'16 mg / 50 mL = 0,32 mg/mL'},
+      {label:'Dilution forte', val:'32 mg / 50 mL = 0,64 mg/mL'},
+    ],
+    posologies:[
+      {txt:'0,1–2 mcg/kg/min en IV continue (PSE)', color:'#f97316'},
+      {txt:'Titration progressive — objectif PAM > 65 mmHg', color:'#fdba74'},
+      {txt:'Toujours en VVC — nécrose si extravasation', color:'#fb7185'},
+    ],
+    alertes:'VVC OBLIGATOIRE — jamais en VVP · Scope continu PA, FC · Antidote extravasation : phentolamine · Arrêt progressif',
+    alerteColor:'rgba(249,115,22,.15)', alerteBorder:'#f97316',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE (mcg/kg/min)',
+        desc:'Calcule le débit du PSE selon la dose en mcg/kg/min.',
+        formula:'Débit (mL/h) = <b>mcg/kg/min</b> × <b>Poids</b> × <b>60</b> ÷ <b>Conc (mcg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mcg/kg/min', placeholder:'ex: 0.3'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 75'},
+          {id:'conc', label:'Concentration PSE', unit:'mg/mL', placeholder:'ex: 0.32'},
+        ],
+        calc: v => {
+          const concMcg = v.conc * 1000;
+          const debit = (v.dose * v.poids * 60) / concMcg;
+          return { val: r2(debit), unit:'mL / heure', detail:`${v.dose} mcg/kg/min × ${v.poids} kg × 60 ÷ ${concMcg} mcg/mL = <strong>${r2(debit)} mL/h</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'trinitrine', name:'Trinitrine (Lénitral®)', class:'cardiovasculaires', icon:'💛',
+    dci:'Trinitrate de glycéryle', indication:'Angor — OAP — HTA — Lénitral® PSE',
+    formes:[
+      {label:'Ampoule PSE', val:'15 mg / 10 mL (1,5 mg/mL)'},
+      {label:'Spray sublingual', val:'0,3 mg / dose'},
+      {label:'Patch', val:'5 mg · 10 mg / 24h'},
+    ],
+    posologies:[
+      {txt:'PSE : 1–6 mg/h IV continue — titration', color:'#f97316'},
+      {txt:'OAP : démarrer à 1–2 mg/h, augmenter par 1 mg/h', color:'#fdba74'},
+      {txt:'Sublingual : 1 spray, renouveler si besoin après 5 min', color:'#f97316'},
+    ],
+    alertes:'Hypotension orthostatique · Céphalées fréquentes (vasodilatation) · Tolérance si > 24h continu · CI : Viagra/Cialis (INTI)',
+    alerteColor:'rgba(249,115,22,.1)', alerteBorder:'#f97316',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE Lénitral',
+        desc:'Calcule le débit PSE et la durée selon la dose horaire prescrite. Exercice 7 du TD.',
+        formula:'Débit (mL/h) = <b>Dose/h (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg/h', placeholder:'ex: 1.5'},
+          {id:'qty', label:'Trinitrine dans la seringue', unit:'mg', placeholder:'ex: 15'},
+          {id:'vol', label:'Volume total seringue', unit:'mL', placeholder:'ex: 45'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const debit = v.dose / c;
+          const duree = v.vol / debit;
+          return { val: r2(debit), unit:'mL / heure', detail:`Concentration : <strong>${r3(c)} mg/mL</strong><br>Débit : <strong>${r2(debit)} mL/h</strong><br>Durée seringue : <strong>${r1(duree)} h</strong>` };
+        }
+      }
+    ]
+  },
+
+  {
+    id:'amiodarone', name:'Amiodarone', class:'cardiovasculaires', icon:'⚡',
+    dci:'Chlorhydrate d\'amiodarone', indication:'Troubles du rythme graves — Cordarone®',
+    formes:[
+      {label:'Ampoule IV', val:'150 mg / 3 mL (50 mg/mL)'},
+      {label:'Comprimé', val:'200 mg'},
+      {label:'Dilution PSE', val:'Obligatoirement G5% (incompatible NaCl)'},
+    ],
+    posologies:[
+      {txt:'Charge IV : 5 mg/kg sur 20–120 min en G5%', color:'#f97316'},
+      {txt:'Entretien IV : 600–900 mg/24h en PSE', color:'#fdba74'},
+      {txt:'Per os : 200 mg × 3/j (charge) puis 200 mg/j', color:'#f97316'},
+    ],
+    alertes:'DILUER UNIQUEMENT dans G5% · Phototoxicité · Hypothyroïdie/hyperthyroïdie · Surveillance TSH, bilan hépatique, PFR · Demi-vie très longue (40–55 j)',
+    alerteColor:'rgba(249,115,22,.1)', alerteBorder:'#f97316',
+    calculs:[
+      {
+        id:'charge', title:'Dose de charge IV',
+        desc:'Calcule le volume d\'amiodarone pour la dose de charge selon le poids.',
+        formula:'Dose (mg) = <b>5 mg/kg</b> × <b>Poids (kg)</b>',
+        fields:[
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+          {id:'conc', label:'Concentration ampoule', unit:'mg/mL', placeholder:'ex: 50'},
+        ],
+        calc: v => {
+          const dose = 5 * v.poids;
+          const vol = dose / v.conc;
+          return { val: r1(vol), unit:'mL à prélever', detail:`Dose : 5 mg/kg × ${v.poids} kg = <strong>${dose} mg</strong><br>Volume : ${dose} mg ÷ ${v.conc} mg/mL = <strong>${r1(vol)} mL</strong><br>À diluer dans G5% — perfusion 20 à 120 min` };
+        }
+      }
+    ]
+  },
+
+  // ANALGÉSIQUES / SÉDATIFS
+  {
+    id:'midazolam', name:'Midazolam', class:'analgesiques', icon:'💜',
+    dci:'Chlorhydrate de midazolam', indication:'Sédation — Anxiolyse — Épilepsie — Hypnovel®',
+    formes:[
+      {label:'Ampoule IV', val:'5 mg / 1 mL · 50 mg / 10 mL'},
+      {label:'PSE sédation', val:'Diluer : 50 mg / 50 mL = 1 mg/mL'},
+      {label:'Voie buccale', val:'10 mg / 2 mL (épilepsie enfant)'},
+    ],
+    posologies:[
+      {txt:'Sédation procédurale : 0,01–0,1 mg/kg IV lent', color:'#a78bfa'},
+      {txt:'PSE soins palliatifs : 1–5 mg/h selon sédation', color:'#c4b5fd'},
+      {txt:'Épilepsie buccale : 0,3–0,5 mg/kg (max 10 mg)', color:'#fb7185'},
+    ],
+    alertes:'Risque dépression respiratoire · Antidote : Flumazénil (Anexate) · Surveillance FR, SpO2, niveau de sédation (Ramsay) · Amnésie antérograde',
+    alerteColor:'rgba(167,139,250,.1)', alerteBorder:'#a78bfa',
+    calculs:[
+      {
+        id:'pse', title:'Débit PSE sédation',
+        desc:'Calcule le débit PSE pour la sédation continue en soins palliatifs ou réanimation.',
+        formula:'Débit (mL/h) = <b>Dose/h (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose souhaitée', unit:'mg/h', placeholder:'ex: 2'},
+          {id:'qty', label:'Midazolam dans la seringue', unit:'mg', placeholder:'ex: 50'},
+          {id:'vol', label:'Volume total seringue', unit:'mL', placeholder:'ex: 50'},
+        ],
+        calc: v => {
+          const c = v.qty / v.vol;
+          const debit = v.dose / c;
+          return { val: r2(debit), unit:'mL / heure', detail:`Concentration : <strong>${r2(c)} mg/mL</strong><br>Débit : <strong>${r2(debit)} mL/h</strong><br>Antidote : Flumazénil si dépression respiratoire` };
+        }
+      },
+      {
+        id:'bolus', title:'Bolus IV (dose de charge)',
+        desc:'Calcule le volume à injecter pour un bolus de sédation procédurale.',
+        formula:'Volume (mL) = <b>mg/kg</b> × <b>Poids (kg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'mgkg', label:'Dose prescrite', unit:'mg/kg', placeholder:'ex: 0.05'},
+          {id:'poids', label:'Poids du patient', unit:'kg', placeholder:'ex: 70'},
+          {id:'conc', label:'Concentration ampoule', unit:'mg/mL', placeholder:'ex: 5'},
+        ],
+        calc: v => {
+          const dose = v.mgkg * v.poids;
+          const vol = dose / v.conc;
+          return { val: r2(vol), unit:'mL IV lent', detail:`${v.mgkg} mg/kg × ${v.poids} kg = <strong>${r2(dose)} mg</strong><br>Volume : ${r2(dose)} mg ÷ ${v.conc} mg/mL = <strong>${r2(vol)} mL</strong><br>Injection IV lente — surveiller FR` };
+        }
+      }
+    ]
+  },
+
+  // DIURÉTIQUES
+  {
+    id:'furosemide', name:'Furosémide', class:'analgesiques', icon:'💊',
+    dci:'Furosémide', indication:'Diurétique de l\'anse — Lasilix® — OAP — Œdèmes',
+    formes:[
+      {label:'Ampoule IV', val:'20 mg / 2 mL · 250 mg / 25 mL'},
+      {label:'Comprimé', val:'20 mg · 40 mg · 500 mg'},
+    ],
+    posologies:[
+      {txt:'Adulte IV : 20–40 mg en bolus lent (4 mg/min max)', color:'#a78bfa'},
+      {txt:'OAP : 40–80 mg IV — peut répéter après 1h', color:'#fb7185'},
+      {txt:'Per os : 20–80 mg/j selon indication', color:'#c4b5fd'},
+    ],
+    alertes:'Surveiller kaliémie (hypokaliémie) · Diurèse · Poids · Ototoxicité si injection rapide · Hypovolémie',
+    alerteColor:'rgba(167,139,250,.1)', alerteBorder:'#a78bfa',
+    calculs:[
+      {
+        id:'vol', title:'Volume à injecter (IV)',
+        desc:'Calcule le volume à prélever selon la dose prescrite.',
+        formula:'Volume (mL) = <b>Dose (mg)</b> ÷ <b>Concentration (mg/mL)</b>',
+        fields:[
+          {id:'dose', label:'Dose prescrite', unit:'mg', placeholder:'ex: 40'},
+          {id:'conc', label:'Concentration ampoule', unit:'mg/mL', placeholder:'ex: 10'},
+        ],
+        calc: v => {
+          const vol = v.dose / v.conc;
+          const duree = v.dose / 4;
+          return { val: r2(vol), unit:'mL', detail:`${v.dose} mg ÷ ${v.conc} mg/mL = <strong>${r2(vol)} mL</strong><br>Injection IV lente : max 4 mg/min → <strong>min ${r0(duree)} secondes</strong>` };
+        }
+      }
+    ]
+  },
+
+  // ÉLECTROLYTES
+  {
+    id:'nacl', name:'NaCl (chlorure de sodium)', class:'analgesiques', icon:'🧂',
+    dci:'Chlorure de sodium', indication:'Correction hyponatrémie — Apport électrolytique',
+    formes:[
+      {label:'Ampoule 20%', val:'2 g / 10 mL (200 mg/mL)'},
+      {label:'Ampoule 10%', val:'1 g / 10 mL (100 mg/mL)'},
+      {label:'Poche NaCl 0,9%', val:'9 mg/mL (isotonique)'},
+    ],
+    posologies:[
+      {txt:'Apport standard : 1–2 g/L dans la perfusion', color:'#a78bfa'},
+      {txt:'Correction : selon natrémie et formule de correction', color:'#fbbf24'},
+      {txt:'Jamais en IV direct concentré — toujours dilué', color:'#fb7185'},
+    ],
+    alertes:'JAMAIS en injection directe concentrée — risque d\'arrêt cardiaque · Toujours diluer dans la perfusion · Surveiller natrémie',
+    alerteColor:'rgba(167,139,250,.1)', alerteBorder:'#fb7185',
+    calculs:[
+      {
+        id:'electrolyte', title:'Volume électrolyte à ajouter (TD ex.2)',
+        desc:'Calcule le volume d\'électrolyte concentré à ajouter dans la poche selon la prescription en g/L.',
+        formula:'Volume (mL) = (<b>g/L prescrit</b> × <b>Vol poche (L)</b> × <b>100</b>) ÷ <b>% concentration</b>',
+        fields:[
+          {id:'gpL', label:'Dose prescrite', unit:'g/L', placeholder:'ex: 1'},
+          {id:'volPoche', label:'Volume de la poche', unit:'mL', placeholder:'ex: 500'},
+          {id:'pct', label:'Concentration de l\'ampoule', unit:'%', placeholder:'ex: 20'},
+        ],
+        calc: v => {
+          const gDansPoche = v.gpL * (v.volPoche / 1000);
+          const vol = (gDansPoche * 100) / v.pct;
+          return { val: r2(vol), unit:'mL à ajouter', detail:`Quantité nécessaire : ${v.gpL} g/L × ${v.volPoche/1000} L = <strong>${r3(gDansPoche)} g</strong><br>Volume : (${r3(gDansPoche)} × 100) ÷ ${v.pct} = <strong>${r2(vol)} mL</strong>` };
+        }
+      }
+    ]
+  },
+];
 const CLASSES = [
   {key:'all', label:'Toutes'},
   {key:'antibiotiques', label:'🦠 Antibiotiques'},
@@ -1263,6 +1990,15 @@ function runCalc(){
     document.getElementById('r-unit').textContent = res.unit;
     document.getElementById('r-detail').innerHTML = res.detail;
     rb.classList.add('show');
+    // Sauvegarder dans l'historique
+    saveToHistory({
+      name: currentMed.name,
+      icon: currentMed.icon,
+      class: currentMed.class,
+      calcName: calc.title,
+      result: res.val,
+      unit: res.unit
+    });
   } catch(e){
     eb.classList.add('show'); rb.classList.remove('show');
   }
@@ -1281,32 +2017,999 @@ function goBackTools(){
 }
 
 function showScreen(s){
-  ['screen-list','screen-tools','screen-detail','screen-tool-detail','screen-conv'].forEach(id=>
+  ['screen-list','screen-tools','screen-detail','screen-tool-detail','screen-conv','screen-contact','screen-don','screen-history','screen-qcm','screen-actu'].forEach(id=>
     document.getElementById(id).classList.remove('active')
   );
-  ['nav-meds','nav-tools','nav-conv'].forEach(id=>{
-    document.getElementById(id).classList.remove('active');
+  ['nav-meds','nav-tools','nav-conv','nav-contact','nav-don','nav-history','nav-qcm','nav-actu'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('active');
   });
   document.querySelectorAll('.nav-it svg').forEach(svg=>svg.style.stroke='#64748b');
+  document.querySelectorAll('.nav-lbl').forEach(l=>l.style.color='');
 
-  if(s==='tools'){
-    document.getElementById('screen-tools').classList.add('active');
-    document.getElementById('nav-tools').classList.add('active');
-    document.querySelector('#nav-tools svg').style.stroke='#38bdf8';
-    document.querySelector('#nav-tools .nav-lbl').style.color='#38bdf8';
-  } else if(s==='conv'){
-    document.getElementById('screen-conv').classList.add('active');
-    document.getElementById('nav-conv').classList.add('active');
-    document.querySelector('#nav-conv svg').style.stroke='#fbbf24';
-    document.querySelector('#nav-conv .nav-lbl').style.color='#fbbf24';
-    renderConv();
-  } else {
-    document.getElementById('screen-list').classList.add('active');
-    document.getElementById('nav-meds').classList.add('active');
-    document.querySelector('#nav-meds svg').style.stroke='#38bdf8';
-    document.querySelector('#nav-meds .nav-lbl').style.color='#38bdf8';
+  const map = {
+    tools:   {screen:'screen-tools',   nav:'nav-tools',   color:'#38bdf8'},
+    conv:    {screen:'screen-conv',    nav:'nav-conv',    color:'#fbbf24'},
+    list:    {screen:'screen-list',    nav:'nav-meds',    color:'#38bdf8'},
+    contact: {screen:'screen-contact', nav:'nav-contact', color:'#34d399'},
+    don:     {screen:'screen-don',     nav:'nav-don',     color:'#fbbf24'},
+    history: {screen:'screen-history', nav:'nav-history', color:'#fb7185'},
+    qcm:     {screen:'screen-qcm',     nav:'nav-qcm',     color:'#34d399'},
+    actu:    {screen:'screen-actu',    nav:'nav-actu',    color:'#f472b6'},
+  };
+  const m = map[s];
+  if(!m) return;
+  document.getElementById(m.screen).classList.add('active');
+  const navEl = document.getElementById(m.nav);
+  if(navEl){
+    navEl.classList.add('active');
+    const svg = navEl.querySelector('svg');
+    const lbl = navEl.querySelector('.nav-lbl');
+    if(svg) svg.style.stroke = m.color;
+    if(lbl) lbl.style.color = m.color;
   }
+  if(s==='conv') renderConv();
+  if(s==='history') renderHistory();
+  if(s==='qcm') renderQCMHome();
+  if(s==='actu'){ currentActuTab='rss'; renderActuTab('rss'); }
   window.scrollTo(0,0);
+}
+
+// ═══════════════════════════════════════════════
+// MODULE ACTU
+// ═══════════════════════════════════════════════
+let currentActuTab = 'rss';
+let rssLoaded = false;
+
+function switchActuTab(tab){
+  currentActuTab = tab;
+  document.querySelectorAll('.actu-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`atab-${tab}`).classList.add('active');
+  renderActuTab(tab);
+}
+
+function renderActuTab(tab){
+  if(tab === 'rss') renderRSS();
+  else if(tab === 'regl') renderReglementation();
+  else if(tab === 'ipa') renderIPA();
+}
+
+// ── RSS ──
+async function renderRSS(){
+  const c = document.getElementById('actu-content');
+  c.innerHTML = `<div class="rss-loading">⏳ Chargement des actualités...</div>`;
+
+  const FEEDS = [
+    { url:'https://www.infirmiers.com/feed', source:'Infirmiers.com' },
+    { url:'https://www.infirmier.be/feed', source:'Infirmier.be' },
+  ];
+
+  // Proxy CORS gratuit pour lire les flux RSS
+  const PROXY = 'https://api.allorigins.win/get?url=';
+
+  let articles = [];
+
+  for(const feed of FEEDS){
+    try {
+      const res = await fetch(PROXY + encodeURIComponent(feed.url));
+      const data = await res.json();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(data.contents, 'text/xml');
+      const items = xml.querySelectorAll('item');
+      items.forEach(item => {
+        const title = item.querySelector('title')?.textContent?.trim();
+        const link = item.querySelector('link')?.textContent?.trim();
+        const pubDate = item.querySelector('pubDate')?.textContent?.trim();
+        if(title && link){
+          articles.push({
+            title, link, source: feed.source,
+            date: pubDate ? new Date(pubDate).toLocaleDateString('fr-FR', {day:'2-digit',month:'short',year:'numeric'}) : ''
+          });
+        }
+      });
+    } catch(e){}
+  }
+
+  if(!articles.length){
+    c.innerHTML = `
+      <div class="rss-loading">
+        <div style="font-size:36px;margin-bottom:12px">📡</div>
+        <p style="margin-bottom:16px">Impossible de charger les actualités.<br>Vérifiez votre connexion internet.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="https://www.infirmiers.com/actualites" target="_blank" class="rss-card" style="text-align:center;color:#f472b6;font-weight:600">→ Infirmiers.com</a>
+          <a href="https://www.ordre-infirmiers.fr/actualites" target="_blank" class="rss-card" style="text-align:center;color:#f472b6;font-weight:600">→ Ordre National des Infirmiers</a>
+          <a href="https://www.has-sante.fr/jcms/fc_1249588/fr/rss" target="_blank" class="rss-card" style="text-align:center;color:#f472b6;font-weight:600">→ Haute Autorité de Santé</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Trier par date décroissante
+  articles.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  c.innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
+      ${articles.length} articles · Sources : ${[...new Set(articles.map(a=>a.source))].join(', ')}
+    </div>
+    ${articles.slice(0,20).map(a => `
+      <a href="${a.link}" target="_blank" class="rss-card" style="text-decoration:none">
+        <div class="rss-source">${a.source}</div>
+        <div class="rss-title">${a.title}</div>
+        <div class="rss-date">${a.date}</div>
+      </a>
+    `).join('')}
+    <div style="text-align:center;margin-top:8px">
+      <a href="https://www.infirmiers.com/actualites" target="_blank" style="font-size:12px;color:#f472b6">Voir toutes les actualités →</a>
+    </div>
+  `;
+}
+
+// ── RÉGLEMENTATION ──
+const REGL_DATA = [
+  {
+    icon:'📋', color:'#f472b6', color2:'#fb7185',
+    tag:'Exercice professionnel', tagBg:'rgba(244,114,182,.12)',
+    title:'Rôle propre infirmier',
+    desc:'Les actes relevant du rôle propre IDE, sans prescription médicale.',
+    detail:`Le rôle propre IDE est défini par le <strong>décret du 29 juillet 2004</strong> (art. R.4311-3 à R.4311-5).<br><br>
+    <strong>Principaux actes :</strong>
+    <ul>
+      <li>Soins d'hygiène et de confort</li>
+      <li>Surveillance de l'état clinique du patient</li>
+      <li>Aide à la prise de médicaments</li>
+      <li>Recueil de données cliniques</li>
+      <li>Éducation thérapeutique</li>
+      <li>Gestion de l'environnement du patient</li>
+    </ul>
+    <strong>À distinguer du rôle prescrit</strong> (actes sur prescription médicale) et du rôle en collaboration.`
+  },
+  {
+    icon:'🎓', color:'#a78bfa', color2:'#38bdf8',
+    tag:'Formation', tagBg:'rgba(167,139,250,.12)',
+    title:'Formation infirmière — Grade licence',
+    desc:'Réforme LMD et reconnaissance du diplôme infirmier au grade licence.',
+    detail:`Depuis <strong>2012</strong>, le Diplôme d'État Infirmier (DEI) est reconnu au <strong>grade de licence</strong> (niveau 6 du cadre européen).<br><br>
+    <strong>Structure des études :</strong>
+    <ul>
+      <li>3 ans — 6 semestres — 180 crédits ECTS</li>
+      <li>2 100h d'enseignements théoriques</li>
+      <li>2 100h de stages cliniques</li>
+      <li>900h de travail personnel</li>
+    </ul>
+    <strong>Débouchés master :</strong> IPA, cadre de santé, recherche en soins infirmiers.`
+  },
+  {
+    icon:'⚖️', color:'#fbbf24', color2:'#f97316',
+    tag:'Législation', tagBg:'rgba(251,191,36,.12)',
+    title:'Secret professionnel & partage d\'informations',
+    desc:'Obligations légales du soignant concernant la confidentialité des données patient.',
+    detail:`Le secret professionnel est défini par l'<strong>article L.1110-4 du Code de la Santé Publique</strong>.<br><br>
+    <strong>Principes fondamentaux :</strong>
+    <ul>
+      <li>Toute personne prise en charge a droit au respect de sa vie privée</li>
+      <li>Le secret couvre toutes les informations confiées ou connues lors des soins</li>
+      <li>Le partage est autorisé au sein de l'équipe de soins (nécessité thérapeutique)</li>
+      <li>Le patient peut s'opposer au partage entre professionnels</li>
+    </ul>
+    <strong>Violation du secret :</strong> peine de 1 an d'emprisonnement et 15 000€ d'amende (art. 226-13 CP).`
+  },
+  {
+    icon:'💊', color:'#34d399', color2:'#38bdf8',
+    tag:'Médicaments', tagBg:'rgba(52,211,153,.12)',
+    title:'Administration des médicaments — Responsabilité IDE',
+    desc:'Règles des 5B et responsabilité infirmière dans l\'administration.',
+    detail:`L'administration médicamenteuse relève du <strong>décret de compétences IDE</strong> (art. R.4311-7).<br><br>
+    <strong>La règle des 5B :</strong>
+    <ul>
+      <li>✅ <strong>Bon patient</strong> — vérifier l'identité</li>
+      <li>✅ <strong>Bon médicament</strong> — DCI + nom commercial</li>
+      <li>✅ <strong>Bonne dose</strong> — calcul et vérification</li>
+      <li>✅ <strong>Bonne voie</strong> — orale, IV, SC, IM...</li>
+      <li>✅ <strong>Bon moment</strong> — heure et fréquence prescrites</li>
+    </ul>
+    <strong>Traçabilité obligatoire</strong> dans le dossier de soins après chaque administration.`
+  },
+  {
+    icon:'🏥', color:'#fb7185', color2:'#f97316',
+    tag:'Urgences', tagBg:'rgba(251,113,133,.12)',
+    title:'Urgences vitales — Rôle IDE avant prescription',
+    desc:'Actes autorisés en situation d\'urgence vitale en l\'absence de médecin.',
+    detail:`L'<strong>article R.4311-14</strong> du Code de la Santé Publique autorise l'IDE à pratiquer certains actes en urgence vitale.<br><br>
+    <strong>Actes autorisés en urgence :</strong>
+    <ul>
+      <li>Massage cardiaque externe (RCP)</li>
+      <li>Utilisation du défibrillateur automatisé (DAE)</li>
+      <li>Injection d'adrénaline en cas d'anaphylaxie (si protocole)</li>
+      <li>Pose de garrot en cas d'hémorragie massive</li>
+      <li>Position latérale de sécurité (PLS)</li>
+    </ul>
+    <strong>Obligation d'alerte immédiate</strong> du médecin ou du SAMU (15).`
+  },
+  {
+    icon:'📱', color:'#38bdf8', color2:'#a78bfa',
+    tag:'Numérique', tagBg:'rgba(56,189,248,.12)',
+    title:'Dossier Patient Informatisé (DPI)',
+    desc:'Obligations légales et bonnes pratiques autour du dossier numérique.',
+    detail:`Le DPI est encadré par la <strong>loi HPST de 2009</strong> et les <strong>recommandations HAS</strong>.<br><br>
+    <strong>Obligations légales :</strong>
+    <ul>
+      <li>Traçabilité de chaque acte avec heure et identification du soignant</li>
+      <li>Confidentialité : accès limité aux soignants impliqués dans la prise en charge</li>
+      <li>Conservation : 20 ans minimum (ou jusqu'aux 28 ans du patient)</li>
+      <li>Accès du patient à son dossier : sous 8 jours (48h si hospit récente)</li>
+    </ul>
+    <strong>RGPD</strong> : les données de santé sont des données sensibles soumises à protection renforcée.`
+  },
+];
+
+function renderReglementation(){
+  const c = document.getElementById('actu-content');
+  c.innerHTML = REGL_DATA.map((r,i) => `
+    <div class="regl-card" onclick="toggleRegl(${i})">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${r.color},${r.color2})"></div>
+      <div class="regl-header">
+        <div class="regl-icon">${r.icon}</div>
+        <div style="flex:1">
+          <span class="regl-tag" style="background:${r.tagBg};color:${r.color}">${r.tag}</span>
+          <div class="regl-title" style="margin-top:6px">${r.title}</div>
+        </div>
+        <svg id="regl-chevron-${i}" width="16" height="16" fill="none" stroke="${r.color}" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0;transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="regl-desc">${r.desc}</div>
+      <div class="regl-detail" id="regl-detail-${i}">${r.detail}</div>
+    </div>
+  `).join('');
+}
+
+function toggleRegl(i){
+  const detail = document.getElementById(`regl-detail-${i}`);
+  const chevron = document.getElementById(`regl-chevron-${i}`);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// ── IPA & RÉFORMES ──
+const IPA_DATA = [
+  {
+    icon:'🎓', color:'#a78bfa',
+    title:'Infirmier en Pratique Avancée (IPA)',
+    desc:'Créé par la loi du 26 janvier 2016, le statut IPA permet aux infirmiers d\'exercer des missions élargies.',
+    items:[
+      'Master IPA requis (2 ans après le DEI)',
+      '5 mentions : Maladies chroniques stabilisées, Oncologie, Psychiatrie, Urgences, Gériatrie',
+      'Renouvellement d\'ordonnances, prescriptions d\'examens complémentaires',
+      'Suivi de patients dans un protocole de coopération avec un médecin',
+      'Rémunération spécifique (grille IDE +)',
+    ]
+  },
+  {
+    icon:'🤝', color:'#34d399',
+    title:'Protocoles de coopération',
+    desc:'L\'article 51 de la loi HPST permet des transferts d\'actes entre professionnels de santé.',
+    items:[
+      'Dérogatoires au droit commun — validés par l\'ARS',
+      'Ex : IDE réalisant des actes habituellement réservés aux médecins',
+      'Nécessite un protocole écrit et une formation spécifique',
+      'Développement majeur depuis 2019 — favorise l\'accès aux soins',
+      'Exemples : suivi tensionnel, renouvellement contraception, vaccination',
+    ]
+  },
+  {
+    icon:'💉', color:'#38bdf8',
+    title:'Vaccination — Nouvelles compétences IDE',
+    desc:'Extension progressive du droit de prescription et d\'administration vaccinale aux IDE.',
+    items:[
+      'Depuis 2023 : IDE peuvent prescrire ET administrer vaccins sans prescription médicale',
+      'Grippe, COVID, DTP, Hépatite B, HPV selon le calendrier vaccinal',
+      'Formation spécifique recommandée',
+      'Traçabilité obligatoire dans le carnet de vaccination numérique',
+      'Majoration possible en pratique libérale',
+    ]
+  },
+  {
+    icon:'🏠', color:'#fbbf24',
+    title:'Infirmière libérale (IDEL) — Évolutions',
+    desc:'Le secteur libéral représente plus de 130 000 IDE en France, en constante évolution.',
+    items:[
+      'Convention nationale avec l\'Assurance Maladie (NGAP)',
+      'Télésoin infirmier autorisé depuis 2020',
+      'Cotation AIS (actes infirmiers de soins) revalorisée',
+      'Protocole PRADO : accompagnement retour à domicile post-hospit',
+      'IDEL coordinatrice en SSIAD et SPASAD',
+    ]
+  },
+  {
+    icon:'🔬', color:'#fb7185',
+    title:'Recherche infirmière en France',
+    desc:'Développement de la recherche paramédicale et des pratiques basées sur les preuves.',
+    items:[
+      'Doctorat en sciences infirmières (PhD) depuis 2018',
+      'Filière universitaire paramédicale en développement',
+      'Evidence-Based Nursing (EBN) — soins basés sur les preuves',
+      'Revues scientifiques : Recherche en Soins Infirmiers (RSI)',
+      'Intégration dans les CHU : poste de "nurse scientist"',
+    ]
+  },
+];
+
+function renderIPA(){
+  const c = document.getElementById('actu-content');
+  c.innerHTML = IPA_DATA.map((item,i) => `
+    <div class="regl-card" onclick="toggleIPA(${i})" style="margin-bottom:12px">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${item.color}"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <div style="font-size:28px">${item.icon}</div>
+        <div style="flex:1">
+          <div style="font-family:'Clash Display',sans-serif;font-size:15px;font-weight:600">${item.title}</div>
+        </div>
+        <svg id="ipa-chevron-${i}" width="16" height="16" fill="none" stroke="${item.color}" stroke-width="2.5" viewBox="0 0 24 24" style="flex-shrink:0;transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.4">${item.desc}</div>
+      <div class="regl-detail" id="ipa-detail-${i}">
+        <ul style="padding-left:0;list-style:none">
+          ${item.items.map(it => `<li style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">→ ${it}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `).join('') + `
+    <div style="background:rgba(244,114,182,.07);border:1px solid rgba(244,114,182,.15);border-radius:14px;padding:14px;margin-top:4px;font-size:12px;color:var(--muted);line-height:1.5;text-align:center">
+      Sources : Légifrance · Ordre National des Infirmiers · HAS · Ministère de la Santé
+    </div>
+  `;
+}
+
+function toggleIPA(i){
+  const detail = document.getElementById(`ipa-detail-${i}`);
+  const chevron = document.getElementById(`ipa-chevron-${i}`);
+  const isOpen = detail.classList.contains('open');
+  detail.classList.toggle('open', !isOpen);
+  chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// ═══════════════════════════════════════════════
+// MODULE QCM
+// ═══════════════════════════════════════════════
+const QCM_SERIES = [
+  {
+    id:'td_perf',
+    title:'Perfusions & électrolytes',
+    icon:'💧',
+    color:'#34d399', color2:'#38bdf8',
+    desc:'Basé sur les exercices 2, 3 et 4 du TD IFSI',
+    niveau:'Débutant',
+    questions:[
+      {
+        enonce:'Le médecin prescrit 500 mL de G5% avec 1 g de NaCl/L à passer en 24h. Vous disposez d\'ampoules de NaCl à 20%. Quel volume de NaCl faut-il ajouter ?',
+        options:['1 mL','2,5 mL','5 mL','10 mL'],
+        correct:1,
+        explication:'1 g/L × 0,5 L = 0,5 g de NaCl nécessaire. NaCl à 20% = 20 g/100 mL. V = (0,5 × 100) ÷ 20 = <strong>2,5 mL</strong>.'
+      },
+      {
+        enonce:'Même prescription (500 mL G5%, 1 g KCl/L). Vous disposez d\'ampoules de KCl à 10%. Quel volume ajouter ?',
+        options:['2,5 mL','3 mL','5 mL','7,5 mL'],
+        correct:2,
+        explication:'0,5 g de KCl nécessaire. KCl à 10% = 10 g/100 mL. V = (0,5 × 100) ÷ 10 = <strong>5 mL</strong>.'
+      },
+      {
+        enonce:'Volume total après ajout des électrolytes (500 mL + 2,5 mL NaCl + 5 mL KCl). Débit en gtt/min avec perfuseur macrogouttes (20 gtt/mL) sur 24h ?',
+        options:['5 gtt/min','7 gtt/min','10 gtt/min','14 gtt/min'],
+        correct:1,
+        explication:'Total = 507,5 mL. 24h = 1440 min. Débit = (507,5 × 20) ÷ 1440 = 7,05 → arrondi à <strong>7 gtt/min</strong> par défaut.'
+      },
+      {
+        enonce:'Pour 750 mL de G5% avec 1 g NaCl/L, ampoules NaCl 20%. Volume à prélever ?',
+        options:['2,5 mL','3,75 mL','5 mL','7,5 mL'],
+        correct:1,
+        explication:'0,75 g nécessaire (1 g/L × 0,75 L). V = (0,75 × 100) ÷ 20 = <strong>3,75 mL</strong>.'
+      },
+      {
+        enonce:'Mr F reçoit 300 mg de Fonzylane® dans 250 mL G5% en 3h. Ampoules de 50 mg. Combien d\'ampoules ?',
+        options:['3 ampoules','4 ampoules','5 ampoules','6 ampoules'],
+        correct:3,
+        explication:'300 mg ÷ 50 mg/ampoule = <strong>6 ampoules</strong>.'
+      },
+      {
+        enonce:'Même cas : 250 mL en 3h, perfuseur macrogouttes (20 gtt/mL). Débit en gtt/min ?',
+        options:['14 gtt/min','21 gtt/min','28 gtt/min','35 gtt/min'],
+        correct:2,
+        explication:'3h = 180 min. (250 × 20) ÷ 180 = 27,77 → arrondi à <strong>28 gtt/min</strong> par excès.'
+      },
+    ]
+  },
+  {
+    id:'td_pse',
+    title:'PSE & Pousse-seringue',
+    icon:'💉',
+    color:'#a78bfa', color2:'#f472b6',
+    desc:'Héparine, Lénitral, Insuline — exercices 5, 7 et 8 du TD',
+    niveau:'Intermédiaire',
+    questions:[
+      {
+        enonce:'Mme Y (60 kg) reçoit de l\'héparine à 600 UI/kg/24h. Flacons à 25 000 UI/5 mL. Quel volume sur 24h ?',
+        options:['5,4 mL','7,2 mL','8,4 mL','10 mL'],
+        correct:1,
+        explication:'600 × 60 = 36 000 UI/24h. V = (36 000 × 5) ÷ 25 000 = <strong>7,2 mL</strong>.'
+      },
+      {
+        enonce:'Ce volume (7,2 mL) est à répartir en 3 seringues de 8h chacune. Volume d\'héparine par seringue ?',
+        options:['1,8 mL','2,4 mL','3,6 mL','4,8 mL'],
+        correct:1,
+        explication:'7,2 mL ÷ 3 seringues = <strong>2,4 mL</strong> d\'héparine par seringue de 8h.'
+      },
+      {
+        enonce:'Chaque seringue fait 48 mL total (2,4 mL héparine + G5%). Quel débit du PSE en mL/h ?',
+        options:['4 mL/h','5 mL/h','6 mL/h','8 mL/h'],
+        correct:2,
+        explication:'48 mL en 8h → 48 ÷ 8 = <strong>6 mL/h</strong>.'
+      },
+      {
+        enonce:'Lénitral à 1,5 mg/h. Seringue : 10 mL de Lénitral (15 mg) + 35 mL G5% = 45 mL. Débit PSE ?',
+        options:['3 mL/h','4,5 mL/h','6 mL/h','7,5 mL/h'],
+        correct:1,
+        explication:'Concentration = 15 mg/45 mL = 0,33 mg/mL. Débit = 1,5 ÷ 0,33 = <strong>4,5 mL/h</strong>.'
+      },
+      {
+        enonce:'Même seringue Lénitral (45 mL à 4,5 mL/h). Combien de temps durera-t-elle ?',
+        options:['8h','10h','12h','15h'],
+        correct:1,
+        explication:'45 mL ÷ 4,5 mL/h = <strong>10 heures</strong>. Posée à 10h → à changer à 20h.'
+      },
+      {
+        enonce:'Insuline 10 UI/h pendant 6h. Flacon 100 UI/mL. Seringue de 60 mL. Volume d\'insuline à prélever ?',
+        options:['0,3 mL','0,6 mL','1 mL','6 mL'],
+        correct:1,
+        explication:'10 UI/h × 6h = 60 UI. 100 UI = 1 mL → 60 UI = <strong>0,6 mL</strong>. Compléter avec 59,4 mL NaCl.'
+      },
+      {
+        enonce:'Même préparation insuline (60 mL pour 6h, soit 1 UI/mL). Débit du PSE ?',
+        options:['1 mL/h','5 mL/h','10 mL/h','60 mL/h'],
+        correct:2,
+        explication:'60 mL ÷ 6h = <strong>10 mL/h</strong>. À ce débit : 10 mL/h × 1 UI/mL = 10 UI/h ✓'
+      },
+    ]
+  },
+  {
+    id:'td_poids',
+    title:'Doses selon le poids',
+    icon:'⚖️',
+    color:'#fbbf24', color2:'#f97316',
+    desc:'Calculs mg/kg, UI/kg — exercices 5 et 6 du TD + cas cliniques',
+    niveau:'Intermédiaire',
+    questions:[
+      {
+        enonce:'Melle G (45 kg) reçoit 500 UI/kg/j de Colchymicine® en 3 injections IM. Dose journalière totale ?',
+        options:['15 000 UI','22 500 UI','25 000 UI','30 000 UI'],
+        correct:1,
+        explication:'500 UI/kg × 45 kg = <strong>22 500 UI/j</strong>.'
+      },
+      {
+        enonce:'Même patient (22 500 UI/j, 3 injections). Flacon 5 000 UI/3 mL. Volume par injection ?',
+        options:['3 mL','4,5 mL','6 mL','7,5 mL'],
+        correct:1,
+        explication:'22 500 ÷ 3 = 7 500 UI/injection. V = (7500 × 3) ÷ 5000 = <strong>4,5 mL</strong>.'
+      },
+      {
+        enonce:'Patient de 75 kg. Dose d\'amikacine prescrite à 15 mg/kg/j en 1 injection. Dose totale ?',
+        options:['750 mg','1000 mg','1125 mg','1500 mg'],
+        correct:2,
+        explication:'15 mg/kg × 75 kg = <strong>1125 mg</strong> en 1 injection IV sur 30 min.'
+      },
+      {
+        enonce:'Même dose (1125 mg d\'amikacine). Flacon 250 mg/2 mL. Volume à prélever ?',
+        options:['6 mL','8 mL','9 mL','12 mL'],
+        correct:2,
+        explication:'Concentration = 250 ÷ 2 = 125 mg/mL. V = 1125 ÷ 125 = <strong>9 mL</strong>.'
+      },
+      {
+        enonce:'Morphine titration IV : 0,1 mg/kg pour patient de 70 kg. Ampoule 10 mg/mL. Volume bolus ?',
+        options:['0,5 mL','0,7 mL','1 mL','1,4 mL'],
+        correct:1,
+        explication:'Dose = 0,1 × 70 = 7 mg. V = 7 ÷ 10 = <strong>0,7 mL</strong>.'
+      },
+      {
+        enonce:'Amoxicilline pédiatrique : 50 mg/kg/j en 3 prises. Enfant de 20 kg. Dose par prise ?',
+        options:['200 mg','250 mg','333 mg','500 mg'],
+        correct:2,
+        explication:'50 × 20 = 1000 mg/j ÷ 3 prises = <strong>333 mg/prise</strong> (arrondi à 333 mg).'
+      },
+    ]
+  },
+  {
+    id:'td_recon',
+    title:'Reconstitution & concentrations',
+    icon:'🔬',
+    color:'#38bdf8', color2:'#a78bfa',
+    desc:'Pourcentages, g/L, reconstitution — exercice 9 du TD',
+    niveau:'Avancé',
+    questions:[
+      {
+        enonce:'Amoxicilline® 800 mg à administrer. Flacon 1 g/12 mL. Volume à prélever ?',
+        options:['8 mL','9,6 mL','10 mL','12 mL'],
+        correct:1,
+        explication:'1000 mg = 12 mL. V = (800 × 12) ÷ 1000 = <strong>9,6 mL</strong>.'
+      },
+      {
+        enonce:'Ce volume (9,6 mL) est ajouté à 100 mL de NaCl 0,9%. Débit en mL/h sur 1h30 ?',
+        options:['66 mL/h','73 mL/h','80 mL/h','100 mL/h'],
+        correct:1,
+        explication:'Total = 109,6 mL. Durée = 1,5h. Débit = 109,6 ÷ 1,5 = 73,06 → <strong>73 mL/h</strong>.'
+      },
+      {
+        enonce:'Amikacine 220 mg. Flacon 25 cg/2 mL (= 250 mg/2 mL). Volume à prélever ?',
+        options:['1,5 mL','1,8 mL','2 mL','2,2 mL'],
+        correct:1,
+        explication:'V = (220 × 2) ÷ 250 = <strong>1,76 mL</strong>, arrondi à 1,8 mL par excès.'
+      },
+      {
+        enonce:'Ce volume (1,8 mL) dans 50 mL NaCl. Perfusion en 15 min, perfuseur macrogouttes. Débit gtt/min ?',
+        options:['55 gtt/min','69 gtt/min','75 gtt/min','80 gtt/min'],
+        correct:1,
+        explication:'Total = 51,8 mL. (51,8 × 20) ÷ 15 = 69,06 → <strong>69 gtt/min</strong> par défaut.'
+      },
+      {
+        enonce:'NaCl à 20% = combien de g par 100 mL ?',
+        options:['2 g/100 mL','10 g/100 mL','20 g/100 mL','200 g/100 mL'],
+        correct:2,
+        explication:'20% signifie <strong>20 g pour 100 mL</strong>. C\'est la définition du pourcentage massique en solution.'
+      },
+      {
+        enonce:'G5% isotonique = combien de g de glucose par litre ?',
+        options:['5 g/L','50 g/L','500 g/L','5000 g/L'],
+        correct:1,
+        explication:'5% = 5 g/100 mL = <strong>50 g/L</strong>. Un litre de G5% apporte 50 g de glucose.'
+      },
+    ]
+  },
+];
+
+let qcmState = null; // { series, qIdx, score, answers, finished }
+
+function renderQCMHome(){
+  const c = document.getElementById('qcm-content');
+  document.getElementById('qcm-score-badge').style.display='none';
+
+  c.innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Choisis une série de questions :</div>
+      ${QCM_SERIES.map(s => `
+        <div class="qcm-home-card" onclick="startQCM('${s.id}')"
+          style="border-left:3px solid ${s.color}">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${s.color},${s.color2})"></div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <div style="font-size:28px">${s.icon}</div>
+            <div>
+              <div style="font-family:'Clash Display',sans-serif;font-size:16px;font-weight:600">${s.title}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">${s.desc}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;gap:8px">
+              <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.06);color:var(--muted)">${s.questions.length} questions</span>
+              <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.06);color:${s.color}">${s.niveau}</span>
+            </div>
+            <svg width="16" height="16" fill="none" stroke="${s.color}" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.5">
+      💡 Les questions sont basées sur les exercices officiels du TD de calcul de doses IFSI. Correction immédiate avec explication détaillée.
+    </div>
+  `;
+}
+
+function startQCM(seriesId){
+  const series = QCM_SERIES.find(s=>s.id===seriesId);
+  if(!series) return;
+  // Mélanger les questions
+  const shuffled = [...series.questions].sort(()=>Math.random()-.5);
+  qcmState = { series, questions: shuffled, qIdx:0, score:0, answers:[], finished:false };
+  renderQCMQuestion();
+}
+
+function renderQCMQuestion(){
+  const {series, questions, qIdx} = qcmState;
+  const q = questions[qIdx];
+  const total = questions.length;
+  const pct = (qIdx / total) * 100;
+
+  document.getElementById('qcm-score-badge').style.display='flex';
+  document.getElementById('qcm-score-badge').textContent = `${qIdx}/${total}`;
+
+  const letters = ['A','B','C','D'];
+  document.getElementById('qcm-content').innerHTML = `
+    <div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+        <span style="color:${series.color};font-weight:600">${series.title}</span>
+        <span>Question ${qIdx+1} / ${total}</span>
+      </div>
+      <div class="qcm-progress">
+        <div class="qcm-progress-bar" style="width:${pct}%;background:linear-gradient(90deg,${series.color},${series.color2})"></div>
+      </div>
+    </div>
+
+    <div class="qcm-question-card">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,${series.color},${series.color2})"></div>
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:${series.color};margin-bottom:10px">Question ${qIdx+1}</div>
+      <div style="font-size:15px;line-height:1.6;margin-bottom:18px;font-weight:500">${q.enonce}</div>
+
+      ${q.options.map((opt,i) => `
+        <div class="qcm-opt" id="opt-${i}" onclick="answerQCM(${i})">
+          <div class="opt-letter">${letters[i]}</div>
+          <span>${opt}</span>
+        </div>
+      `).join('')}
+
+      <div id="qcm-exp" style="display:none"></div>
+      <button id="qcm-next-btn" onclick="nextQCM()" style="display:none;width:100%;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,${series.color},${series.color2});font-family:'Clash Display',sans-serif;font-weight:700;font-size:15px;cursor:pointer;color:#060d1a;margin-top:10px">
+        ${qIdx+1 < total ? 'Question suivante →' : 'Voir mon score →'}
+      </button>
+    </div>
+
+    <div style="text-align:center;margin-top:8px">
+      <span onclick="renderQCMHome()" style="font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline">Changer de série</span>
+    </div>
+  `;
+}
+
+function answerQCM(idx){
+  const {series, questions, qIdx} = qcmState;
+  const q = questions[qIdx];
+  const isCorrect = idx === q.correct;
+
+  if(isCorrect) qcmState.score++;
+  qcmState.answers.push({idx, correct: q.correct, ok: isCorrect});
+
+  // Colorier les options
+  document.querySelectorAll('.qcm-opt').forEach((el, i) => {
+    el.classList.add('disabled');
+    if(i === q.correct) el.classList.add('correct');
+    else if(i === idx && !isCorrect) el.classList.add('wrong');
+  });
+
+  // Explication
+  const expEl = document.getElementById('qcm-exp');
+  expEl.className = isCorrect ? 'qcm-explication' : 'qcm-explication wrong-exp';
+  expEl.innerHTML = `${isCorrect ? '✅ Bonne réponse !' : '❌ Pas tout à fait...'}<br><br>${q.explication}`;
+  expEl.style.display='block';
+
+  document.getElementById('qcm-next-btn').style.display='block';
+}
+
+function nextQCM(){
+  qcmState.qIdx++;
+  if(qcmState.qIdx >= qcmState.questions.length){
+    renderQCMResult();
+  } else {
+    renderQCMQuestion();
+  }
+}
+
+function renderQCMResult(){
+  const {series, score, questions} = qcmState;
+  const total = questions.length;
+  const pct = Math.round((score/total)*100);
+  let emoji, msg, color;
+  if(pct >= 90){ emoji='🏆'; msg='Excellent ! Maîtrise parfaite'; color='#34d399'; }
+  else if(pct >= 70){ emoji='👍'; msg='Bien ! Quelques points à revoir'; color='#38bdf8'; }
+  else if(pct >= 50){ emoji='📚'; msg='Moyen — Relis les formules'; color='#fbbf24'; }
+  else { emoji='💪'; msg='À retravailler — Courage !'; color='#fb7185'; }
+
+  document.getElementById('qcm-score-badge').textContent = `${score}/${total}`;
+
+  document.getElementById('qcm-content').innerHTML = `
+    <div class="qcm-result-card">
+      <div style="font-size:52px">${emoji}</div>
+      <div class="qcm-result-score" style="color:${color}">${score}<span style="font-size:28px;color:var(--muted)">/${total}</span></div>
+      <div class="qcm-result-label">${msg}</div>
+
+      <div style="background:var(--card2);border-radius:14px;padding:14px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--muted)">Score</span>
+          <span style="font-family:'Clash Display',sans-serif;font-size:18px;font-weight:700;color:${color}">${pct}%</span>
+        </div>
+        <div class="qcm-progress">
+          <div class="qcm-progress-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        ${qcmState.answers.map((a,i) => `
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;background:var(--card2);border-radius:10px;padding:10px 12px">
+            <span style="color:${a.ok?'#34d399':'#fb7185'};font-size:16px">${a.ok?'✅':'❌'}</span>
+            <span style="color:var(--muted);flex:1">Q${i+1}</span>
+            <span style="color:${a.ok?'#34d399':'#fb7185'};font-weight:600">${a.ok?'Correct':'Incorrect'}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <button onclick="startQCM('${series.id}')" style="flex:1;padding:13px;border-radius:12px;border:none;background:linear-gradient(135deg,${color},${series.color2});font-family:'Clash Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;color:#060d1a">
+          Recommencer
+        </button>
+        <button onclick="renderQCMHome()" style="flex:1;padding:13px;border-radius:12px;border:1.5px solid var(--border2);background:none;font-family:'Clash Display',sans-serif;font-weight:700;font-size:14px;cursor:pointer;color:var(--text)">
+          Autres séries
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+// ─── HISTORIQUE ───
+const HIST_KEY = 'dosecalc_history';
+const CLASS_COLORS_HIST = {
+  antibiotiques:'#38bdf8', anticoagulants:'#f472b6',
+  analgesiques:'#a78bfa', cardiovasculaires:'#f97316',
+  insuline:'#34d399', outil:'#34d399', generique:'#38bdf8'
+};
+
+function saveToHistory(entry){
+  try {
+    let hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+    hist.unshift({...entry, ts: Date.now()});
+    if(hist.length > 20) hist = hist.slice(0,20);
+    localStorage.setItem(HIST_KEY, JSON.stringify(hist));
+    // Mettre à jour le badge si visible
+    updateHistBadge(hist.length);
+  } catch(e){}
+}
+
+function updateHistBadge(n){
+  const nav = document.getElementById('nav-history');
+  if(!nav) return;
+  let badge = nav.querySelector('.hist-badge');
+  if(n > 0){
+    if(!badge){
+      badge = document.createElement('div');
+      badge.className = 'hist-badge';
+      badge.style.cssText = 'position:absolute;top:2px;right:10px;width:8px;height:8px;background:#fb7185;border-radius:50%;';
+      nav.style.position='relative';
+      nav.appendChild(badge);
+    }
+  } else if(badge) badge.remove();
+}
+
+function renderHistory(){
+  const container = document.getElementById('history-content');
+  let hist = [];
+  try { hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]'); } catch(e){}
+
+  if(!hist.length){
+    container.innerHTML = `
+      <div class="hist-empty">
+        <div class="he-icon">🕐</div>
+        <p>Aucun calcul encore effectué.<br>Vos résultats apparaîtront ici automatiquement.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = hist.map((h,i) => {
+    const col = CLASS_COLORS_HIST[h.class] || '#38bdf8';
+    const date = new Date(h.ts);
+    const timeStr = date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) +
+      ' ' + date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    return `
+      <div class="hist-item" style="border-left-color:${col}">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${col};border-radius:3px 0 0 3px"></div>
+        <div class="hist-top">
+          <div class="hist-name">${h.icon || '🧮'} ${h.name}</div>
+          <div class="hist-time">${timeStr}</div>
+        </div>
+        <div class="hist-calc">${h.calcName}</div>
+        <div class="hist-result" style="color:${col}">${h.result} <span style="font-size:12px;font-weight:400;color:var(--muted)">${h.unit}</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function clearHistory(){
+  if(!confirm('Effacer tout l\'historique ?')) return;
+  localStorage.removeItem(HIST_KEY);
+  renderHistory();
+  updateHistBadge(0);
+}
+
+// ─── ASSISTANT IA ───
+let iaHistory = [];
+let iaInitialized = false;
+
+const IA_SYSTEM = `Tu es un assistant clinique spécialisé pour les étudiants infirmiers français. Tu t'appelles "DoseCalc IA".
+
+Ton rôle :
+- Répondre aux questions de calcul de doses médicamenteuses
+- Expliquer les formules et raisonnements cliniques
+- Donner des informations sur les médicaments courants en soins infirmiers
+- Aider à comprendre les protocoles (perfusion, PSE, PCA...)
+
+Règles importantes :
+- Toujours préciser que tes réponses sont à des fins pédagogiques et ne remplacent pas la prescription médicale
+- Pour les calculs, montrer le raisonnement étape par étape
+- Utiliser les unités françaises (g/L pour la glycémie, etc.)
+- Être concis et structuré — tu réponds sur mobile
+- Mettre les résultats numériques importants entre balises [RÉSULTAT: valeur unité]
+- Ne jamais donner de conseils thérapeutiques directs
+
+Format de réponse :
+- Phrases courtes, langage clinique adapté aux étudiants infirmiers
+- Utiliser des emojis sparingly pour structurer (💊 ⚡ ⚠️ ✅)
+- Maximum 200 mots par réponse`;
+
+function renderIAWelcome(){
+  if(iaInitialized) return;
+  iaInitialized = true;
+  const msgs = document.getElementById('ia-messages');
+  msgs.innerHTML = `
+    <div class="ia-header-msg">
+      <div class="ia-avatar">🤖</div>
+      <p><strong style="color:#a78bfa">DoseCalc IA</strong> — Assistant clinique<br>
+      Posez vos questions sur les calculs de doses, médicaments, perfusions...<br>
+      <span style="font-size:11px;color:rgba(148,163,184,.6)">Pédagogique uniquement · Ne remplace pas un avis médical</span></p>
+    </div>
+  `;
+}
+
+function askSuggestion(el){
+  document.getElementById('ia-input').value = el.textContent.replace(/^[^\s]+\s/,'').trim();
+  sendIA();
+}
+
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+async function sendIA(){
+  const input = document.getElementById('ia-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+
+  // Masquer suggestions
+  document.getElementById('ia-suggestions').style.display='none';
+
+  // Ajouter message user
+  const msgs = document.getElementById('ia-messages');
+  msgs.innerHTML += `<div class="ia-bubble-user">${escapeHtml(msg)}</div>`;
+  input.value = '';
+  input.style.height = 'auto';
+
+  // Ajouter à l'historique
+  iaHistory.push({role:'user', content: msg});
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  msgs.innerHTML += `<div class="ia-typing" id="${typingId}"><span></span><span></span><span></span></div>`;
+  scrollToBottom();
+
+  // Désactiver le bouton
+  document.getElementById('ia-send-btn').style.opacity = '0.5';
+  document.getElementById('ia-send-btn').disabled = true;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: IA_SYSTEM,
+        messages: iaHistory
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.content?.[0]?.text || 'Désolé, je n\'ai pas pu répondre.';
+
+    // Supprimer typing
+    document.getElementById(typingId)?.remove();
+
+    // Formater la réponse
+    const formatted = formatIAReply(reply);
+    msgs.innerHTML += `<div class="ia-bubble-ai">${formatted}</div>`;
+
+    // Ajouter à l'historique
+    iaHistory.push({role:'assistant', content: reply});
+
+    // Garder max 20 messages en mémoire
+    if(iaHistory.length > 20) iaHistory = iaHistory.slice(-20);
+
+  } catch(err) {
+    document.getElementById(typingId)?.remove();
+    msgs.innerHTML += `<div class="ia-bubble-ai" style="border-color:rgba(251,113,133,.3)">⚠️ Erreur de connexion. Vérifie ta connexion internet et réessaie.</div>`;
+  }
+
+  document.getElementById('ia-send-btn').style.opacity = '1';
+  document.getElementById('ia-send-btn').disabled = false;
+  scrollToBottom();
+}
+
+function formatIAReply(text){
+  // Mettre en valeur les résultats numériques [RÉSULTAT: x unité]
+  text = text.replace(/\[RÉSULTAT:\s*([^\]]+)\]/g,
+    '<div class="ia-result-highlight">→ $1</div>');
+  // Gras markdown
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Sauts de ligne
+  text = text.replace(/\n/g, '<br>');
+  return text;
+}
+
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function scrollToBottom(){
+  setTimeout(()=> window.scrollTo(0, document.body.scrollHeight), 100);
+}
+
+function clearChat(){
+  iaHistory = [];
+  iaInitialized = false;
+  document.getElementById('ia-messages').innerHTML = '';
+  document.getElementById('ia-suggestions').style.display='flex';
+  renderIAWelcome();
+}
+
+// ─── CONTACT ───
+function envoyerContact(){
+  const nom = document.getElementById('contact_nom').value.trim();
+  const email = document.getElementById('contact_email').value.trim();
+  const sujet = document.getElementById('contact_sujet').value;
+  const msg = document.getElementById('contact_msg').value.trim();
+  const ok = document.getElementById('contact_success');
+  const err = document.getElementById('contact_error');
+
+  if(!nom || !email || !sujet || !msg){
+    err.style.display='block'; ok.style.display='none'; return;
+  }
+  err.style.display='none';
+
+  // Ouvre le client mail avec les infos pré-remplies
+  const subject = encodeURIComponent(`[DoseCalc] ${sujet} - ${nom}`);
+  const body = encodeURIComponent(`Nom : ${nom}\nEmail : ${email}\nSujet : ${sujet}\n\nMessage :\n${msg}`);
+  window.location.href = `mailto:contact@dosecalc.fr?subject=${subject}&body=${body}`;
+
+  ok.style.display='block';
+  document.getElementById('contact_nom').value='';
+  document.getElementById('contact_email').value='';
+  document.getElementById('contact_sujet').value='';
+  document.getElementById('contact_msg').value='';
+}
+
+// ─── DON ───
+let selectedAmount = 0;
+
+function selectDon(amount){
+  selectedAmount = amount;
+  document.getElementById('don_libre').value = '';
+  document.querySelectorAll('.don-btn').forEach(b=>{
+    b.classList.toggle('selected', parseInt(b.dataset.amount)===amount);
+  });
+  document.getElementById('don_amount_display').textContent = amount + ' €';
+  document.getElementById('don_selected').style.display='block';
+}
+
+function selectDonLibre(){
+  const v = parseFloat(document.getElementById('don_libre').value);
+  document.querySelectorAll('.don-btn').forEach(b=>b.classList.remove('selected'));
+  if(v > 0){
+    selectedAmount = v;
+    document.getElementById('don_amount_display').textContent = v + ' €';
+    document.getElementById('don_selected').style.display='block';
+  } else {
+    selectedAmount = 0;
+    document.getElementById('don_selected').style.display='none';
+  }
+}
+
+function faireUnDon(){
+  if(!selectedAmount || selectedAmount <= 0){
+    alert('Merci de sélectionner un montant avant de continuer.');
+    return;
+  }
+  // Lien PayPal.me — à remplacer par ton lien PayPal personnel
+  const paypalUrl = `https://www.paypal.com/donate/?hosted_button_id=TONID&amount=${selectedAmount}&currency_code=EUR`;
+  window.open(paypalUrl, '_blank');
 }
 
 // ─── MODULE CONVERSION ───
@@ -1801,6 +3504,7 @@ function calcPerf(){
   const dur = h>0&&m>0?`${h}h${String(Math.round(m)).padStart(2,'0')}`:h>0?`${h}h`:`${Math.round(m)} min`;
   document.getElementById('tr_perf_det').innerHTML = `Volume : <strong>${vol} mL</strong> sur <strong>${dur}</strong><br>→ <strong>${r2(gtt)} gtt/min</strong> = compter <strong>${r2(gtt/4)} gtt/15 sec</strong>`;
   rb.style.display='block';
+  saveToHistory({name:'Perfusion IV',icon:'💧',class:'outil',calcName:`${vol} mL / ${dur}`,result:r2(mlh),unit:'mL/h'});
 }
 
 function calcPSE(){
@@ -1818,6 +3522,7 @@ function calcPSE(){
   document.getElementById('tr_pse_debit').textContent = r2(debit);
   document.getElementById('tr_pse_det').innerHTML = `Seringue : <strong>${qty} ${du}</strong> dans <strong>${vol} mL</strong><br>Concentration : <strong>${r3(conc)} ${du}/mL</strong><br>Pour <strong>${dose} ${unit}</strong> → débit : <strong>${r2(debit)} mL/h</strong>`;
   rb.classList.add('show');
+  saveToHistory({name:'Pousse-seringue',icon:'💉',class:'outil',calcName:`${dose} ${unit}`,result:r2(debit),unit:'mL/h'});
 }
 
 function calcPCA(){
@@ -1843,6 +3548,7 @@ function calcPCA(){
     (max4h?`Dose max 4h : <strong>${max4h} mg</strong><br>`:'') +
     (lock?`Bolus max théorique/h : <strong>${bolusMaxH} bolus/h</strong>`:'');
   rb.classList.add('show');
+  saveToHistory({name:'PCA',icon:'🎛️',class:'outil',calcName:`Bolus ${bolus} mg`,result:r3(volBolus),unit:'mL/bolus'});
 }
 
 function calcGen(){
@@ -1857,6 +3563,7 @@ function calcGen(){
   document.getElementById('tr_gen_val').textContent = r3(res);
   document.getElementById('tr_gen_det').innerHTML = `Concentration : <strong>${r3(conc)} ${unit}/mL</strong><br>${dose} ${unit} ÷ ${r3(conc)} ${unit}/mL = <strong>${r3(res)} mL</strong>`;
   rb.classList.add('show');
+  saveToHistory({name:'Dose générique',icon:'🧮',class:'generique',calcName:`${dose} ${unit}`,result:r3(res),unit:'mL'});
 }
 
 function calcGenPoids(){
@@ -1877,6 +3584,7 @@ function calcGenPoids(){
   document.getElementById('tr_gen2_unit').textContent = unit;
   document.getElementById('tr_gen2_det').innerHTML = detail;
   rb.classList.add('show');
+  saveToHistory({name:'Dose poids/m²',icon:'⚖️',class:'generique',calcName:document.getElementById('tg2_mode').value,result:r2(total),unit});
 }
 
 function openModal(){ document.getElementById('disclaimerModal').classList.add('open'); }
@@ -1893,6 +3601,11 @@ document.addEventListener('keydown', e=>{
 buildClassRow();
 renderList();
 openModal();
+// Badge historique
+try {
+  const hist = JSON.parse(localStorage.getItem(HIST_KEY)||'[]');
+  if(hist.length) updateHistBadge(hist.length);
+} catch(e){}
 
 // Enregistrement Service Worker (PWA)
 if('serviceWorker' in navigator){
