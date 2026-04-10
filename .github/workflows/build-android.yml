@@ -6,59 +6,123 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-      - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
-      - name: Pre-configure Bubblewrap
+
+      - name: Install Gradle 8.4
         run: |
-          mkdir -p ~/.bubblewrap
-          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_SDK_ROOT\"}" > ~/.bubblewrap/config.json
-          cat ~/.bubblewrap/config.json
-      - name: Create twa-manifest
+          wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
+          unzip -q gradle-8.4-bin.zip -d /opt/gradle
+          echo "/opt/gradle/gradle-8.4/bin" >> $GITHUB_PATH
+
+      - name: Build TWA with Gradle
         run: |
-          cat > twa-manifest.json << 'EOF'
-          {
-            "packageId": "fr.doseclac.app",
-            "host": "doseclac.fr",
-            "name": "DoseCalc — Calcul de doses infirmier",
-            "launcherName": "DoseCalc",
-            "display": "standalone",
-            "themeColor": "#060d1a",
-            "navigationColor": "#060d1a",
-            "backgroundColor": "#060d1a",
-            "enableNotifications": false,
-            "startUrl": "/",
-            "iconUrl": "https://doseclac.fr/icone-512.png",
-            "maskableIconUrl": "https://doseclac.fr/icone-512.png",
-            "appVersion": "1",
-            "appVersionCode": 1,
-            "signingMode": "none",
-            "generatorApp": "bubblewrap",
-            "webManifestUrl": "https://doseclac.fr/manifest.json",
-            "fallbackType": "customtabs",
-            "features": {},
-            "alphaDependencies": { "enabled": false },
-            "enableSiteSettingsShortcut": true,
-            "isChromeOSOnly": false,
-            "isMetaQuest": false,
-            "orientation": "portrait",
-            "fingerprints": [],
-            "shortcuts": []
+          pip install Pillow --break-system-packages
+          curl -fsSL -o /tmp/icon.png https://doseclac.fr/icone-512.png
+
+          mkdir -p twa/app/src/main/res/mipmap-mdpi
+          mkdir -p twa/app/src/main/res/mipmap-hdpi
+          mkdir -p twa/app/src/main/res/mipmap-xhdpi
+          mkdir -p twa/app/src/main/res/mipmap-xxhdpi
+          mkdir -p twa/app/src/main/res/mipmap-xxxhdpi
+          mkdir -p twa/app/src/main/res/values
+
+          python3 -c "
+          from PIL import Image
+          icon = Image.open('/tmp/icon.png').convert('RGBA')
+          for d,s in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhdpi',192)]:
+              icon.resize((s,s),Image.LANCZOS).save(f'twa/app/src/main/res/mipmap-{d}/ic_launcher.png')
+          print('Icons generated')
+          "
+
+          cat > twa/settings.gradle << 'EOF'
+          rootProject.name = "DoseCalc"
+          include ':app'
+          EOF
+
+          cat > twa/build.gradle << 'EOF'
+          buildscript {
+            repositories { google(); mavenCentral() }
+            dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
+          }
+          allprojects { repositories { google(); mavenCentral() } }
+          EOF
+
+          echo 'android.useAndroidX=true' > twa/gradle.properties
+
+          cat > twa/app/build.gradle << 'EOF'
+          plugins { id 'com.android.application' }
+          android {
+            compileSdk 34
+            namespace "fr.doseclac.app"
+            defaultConfig {
+              applicationId "fr.doseclac.app"
+              minSdk 19
+              targetSdk 34
+              versionCode 1
+              versionName "1.0"
+            }
+            buildTypes { release { minifyEnabled false } }
+          }
+          dependencies {
+            implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
           }
           EOF
-      - name: Build TWA
-        run: yes | bubblewrap build --skipPwaValidation
+
+          cat > twa/app/src/main/AndroidManifest.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <application
+              android:allowBackup="true"
+              android:icon="@mipmap/ic_launcher"
+              android:label="DoseCalc"
+              android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+              <activity
+                android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
+                android:exported="true">
+                <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                  android:value="https://doseclac.fr/" />
+                <intent-filter android:autoVerify="true">
+                  <action android:name="android.intent.action.MAIN" />
+                  <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
+                <intent-filter android:autoVerify="true">
+                  <action android:name="android.intent.action.VIEW" />
+                  <category android:name="android.intent.category.DEFAULT" />
+                  <category android:name="android.intent.category.BROWSABLE" />
+                  <data android:scheme="https" android:host="doseclac.fr" />
+                </intent-filter>
+              </activity>
+              <service
+                android:name="com.google.androidbrowserhelper.trusted.DelegationService"
+                android:exported="true">
+                <intent-filter>
+                  <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE" />
+                  <category android:name="android.intent.category.DEFAULT" />
+                </intent-filter>
+              </service>
+            </application>
+          </manifest>
+          EOF
+
+          cat > twa/app/src/main/res/values/strings.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+            <string name="app_name">DoseCalc</string>
+          </resources>
+          EOF
+
+          cd twa && gradle bundleRelease
+
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
           name: dosecalc-android
-          path: '*.aab'
+          path: 'twa/app/build/outputs/bundle/release/*.aab'
           retention-days: 30
