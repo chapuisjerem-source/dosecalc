@@ -1,29 +1,22 @@
 name: Build Android TWA
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
-
       - name: Create twa-manifest
         run: |
           cat > twa-manifest.json << 'EOF'
@@ -56,10 +49,8 @@ jobs:
             "shortcuts": []
           }
           EOF
-
       - name: Build TWA
-        run: bubblewrap build --skipPwaValidation
-
+        run: echo "n" | bubblewrap build --skipPwaValidation --jdkPath "$JAVA_HOME"
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
