@@ -49,8 +49,13 @@ jobs:
             "shortcuts": []
           }
           EOF
+      - name: Pre-configure Bubblewrap
+        run: |
+          mkdir -p ~/.bubblewrap
+          echo "{\"jdkPath\":\"$JAVA_HOME\",\"androidSdkPath\":\"$ANDROID_SDK_ROOT\"}" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
       - name: Build TWA
-        run: echo "n" | bubblewrap build --skipPwaValidation --jdkPath "$JAVA_HOME"
+        run: bubblewrap build --skipPwaValidation
       - name: Upload AAB
         uses: actions/upload-artifact@v4
         with:
