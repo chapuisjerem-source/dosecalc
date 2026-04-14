@@ -140,6 +140,12 @@ jobs:
           </resources>
           STRINGSEOF
 
+          cat > twa/gradle.properties << 'PROPSEOF'
+          android.useAndroidX=true
+          android.enableJetifier=true
+          org.gradle.jvmargs=-Xmx2048m
+          PROPSEOF
+
           cd twa && gradle bundleRelease
 
       - name: Upload AAB
