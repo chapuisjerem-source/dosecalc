@@ -68,7 +68,15 @@ jobs:
               versionCode 1
               versionName "1.0"
             }
-            buildTypes { release { minifyEnabled false } }
+            signingConfigs {
+          release {
+            storeFile file('/tmp/dosecalc.jks')
+            storePassword 'DoseCalc2026!'
+            keyAlias 'dosecalc'
+            keyPassword 'DoseCalc2026!'
+          }
+        }
+        buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
           }
           dependencies {
             implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
@@ -118,7 +126,21 @@ jobs:
           </resources>
           EOF
 
-          cd twa && gradle bundleRelease
+          # Generate upload keystore (save KEYSTORE_B64 secret from job summary for future builds)
+              if [ -n "${{ secrets.KEYSTORE_B64 }}" ]; then
+                echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > /tmp/dosecalc.jks
+              else
+                keytool -genkey -v -keystore /tmp/dosecalc.jks \
+                  -alias dosecalc -keyalg RSA -keysize 2048 -validity 10000 \
+                  -dname "CN=DoseCalc,O=DoseCalc,C=FR" \
+                  -storepass 'DoseCalc2026!' -keypass 'DoseCalc2026!' -noprompt
+                echo "## Save as GitHub secret KEYSTORE_B64" >> $GITHUB_STEP_SUMMARY
+                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                base64 -w 0 /tmp/dosecalc.jks >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              fi
+              cd twa && gradle bundleRelease
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
