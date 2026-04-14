@@ -64,12 +64,12 @@ jobs:
           cat > twa/app/build.gradle << 'APPEOF'
           plugins { id 'com.android.application' }
           android {
-            compileSdk 34
+            compileSdk 35
             namespace "fr.doseclac.app"
             defaultConfig {
               applicationId "fr.doseclac.app"
               minSdk 21
-              targetSdk 34
+              targetSdk 35
               versionCode 1
               versionName "1.0"
             }
