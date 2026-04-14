@@ -21,42 +21,47 @@ jobs:
           unzip -q gradle-8.4-bin.zip -d /opt/gradle
           echo "/opt/gradle/gradle-8.4/bin" >> $GITHUB_PATH
 
+      - name: Generate keystore
+        run: |
+          keytool -genkey -v -keystore /tmp/dosecalc.jks \
+            -alias dosecalc -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=DoseCalc,O=DoseCalc,C=FR" \
+            -storepass DoseCalc2026 -keypass DoseCalc2026 -noprompt
+          echo "## Keystore (save as secret KEYSTORE_B64)" >> $GITHUB_STEP_SUMMARY
+          base64 -w 0 /tmp/dosecalc.jks >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
       - name: Build TWA with Gradle
         run: |
           pip install Pillow --break-system-packages
           curl -fsSL -o /tmp/icon.png https://doseclac.fr/icone-512.png
-
           mkdir -p twa/app/src/main/res/mipmap-mdpi
           mkdir -p twa/app/src/main/res/mipmap-hdpi
           mkdir -p twa/app/src/main/res/mipmap-xhdpi
           mkdir -p twa/app/src/main/res/mipmap-xxhdpi
           mkdir -p twa/app/src/main/res/mipmap-xxxhdpi
           mkdir -p twa/app/src/main/res/values
-
+          mkdir -p twa/app/src/main/AndroidManifest.xml || true
           python3 -c "
           from PIL import Image
           icon = Image.open('/tmp/icon.png').convert('RGBA')
           for d,s in [('mdpi',48),('hdpi',72),('xhdpi',96),('xxhdpi',144),('xxxhdpi',192)]:
               icon.resize((s,s),Image.LANCZOS).save(f'twa/app/src/main/res/mipmap-{d}/ic_launcher.png')
-          print('Icons generated')
           "
-
-          cat > twa/settings.gradle << 'EOF'
+          cat > twa/settings.gradle << 'SETTINGSEOF'
           rootProject.name = "DoseCalc"
           include ':app'
-          EOF
+          SETTINGSEOF
 
-          cat > twa/build.gradle << 'EOF'
+          cat > twa/build.gradle << 'BUILDEOF'
           buildscript {
             repositories { google(); mavenCentral() }
-            dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
+            dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }
           }
           allprojects { repositories { google(); mavenCentral() } }
-          EOF
+          BUILDEOF
 
-          echo 'android.useAndroidX=true' > twa/gradle.properties
-
-          cat > twa/app/build.gradle << 'EOF'
+          cat > twa/app/build.gradle << 'APPEOF'
           plugins { id 'com.android.application' }
           android {
             compileSdk 34
@@ -69,32 +74,41 @@ jobs:
               versionName "1.0"
             }
             signingConfigs {
-          release {
-            storeFile file('/tmp/dosecalc.jks')
-            storePassword 'DoseCalc2026!'
-            keyAlias 'dosecalc'
-            keyPassword 'DoseCalc2026!'
-          }
-        }
-        buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
+              release {
+                storeFile file('/tmp/dosecalc.jks')
+                storePassword 'DoseCalc2026'
+                keyAlias 'dosecalc'
+                keyPassword 'DoseCalc2026'
+              }
+            }
+            buildTypes {
+              release {
+                minifyEnabled false
+                signingConfig signingConfigs.release
+              }
+            }
           }
           dependencies {
             implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
           }
-          EOF
+          APPEOF
 
-          cat > twa/app/src/main/AndroidManifest.xml << 'EOF'
+          rm -rf twa/app/src/main/AndroidManifest.xml
+          mkdir -p twa/app/src/main
+          cat > twa/app/src/main/AndroidManifest.xml << 'MANIFESTEOF'
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+            <uses-permission android:name="android.permission.INTERNET" />
             <application
-              android:allowBackup="true"
-              android:icon="@mipmap/ic_launcher"
               android:label="DoseCalc"
-              android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+              android:icon="@mipmap/ic_launcher"
+              android:theme="@android:style/Theme.NoTitleBar"
+              android:allowBackup="true">
               <activity
                 android:name="com.google.androidbrowserhelper.trusted.LauncherActivity"
                 android:exported="true">
-                <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL"
+                <meta-data
+                  android:name="android.support.customtabs.trusted.DEFAULT_URL"
                   android:value="https://doseclac.fr/" />
                 <intent-filter android:autoVerify="true">
                   <action android:name="android.intent.action.MAIN" />
@@ -117,30 +131,16 @@ jobs:
               </service>
             </application>
           </manifest>
-          EOF
+          MANIFESTEOF
 
-          cat > twa/app/src/main/res/values/strings.xml << 'EOF'
+          cat > twa/app/src/main/res/values/strings.xml << 'STRINGSEOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
             <string name="app_name">DoseCalc</string>
           </resources>
-          EOF
+          STRINGSEOF
 
-          # Generate upload keystore (save KEYSTORE_B64 secret from job summary for future builds)
-              if [ -n "${{ secrets.KEYSTORE_B64 }}" ]; then
-                echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > /tmp/dosecalc.jks
-              else
-                keytool -genkey -v -keystore /tmp/dosecalc.jks \
-                  -alias dosecalc -keyalg RSA -keysize 2048 -validity 10000 \
-                  -dname "CN=DoseCalc,O=DoseCalc,C=FR" \
-                  -storepass 'DoseCalc2026!' -keypass 'DoseCalc2026!' -noprompt
-                echo "## Save as GitHub secret KEYSTORE_B64" >> $GITHUB_STEP_SUMMARY
-                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-                base64 -w 0 /tmp/dosecalc.jks >> $GITHUB_STEP_SUMMARY
-                echo "" >> $GITHUB_STEP_SUMMARY
-                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-              fi
-              cd twa && gradle bundleRelease
+          cd twa && gradle bundleRelease
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
