@@ -21,16 +21,8 @@ jobs:
           unzip -q gradle-8.4-bin.zip -d /opt/gradle
           echo "/opt/gradle/gradle-8.4/bin" >> $GITHUB_PATH
 
-      - name: Generate keystore
-        run: |
-          keytool -genkey -v -keystore /tmp/dosecalc.jks \
-            -alias dosecalc -keyalg RSA -keysize 2048 -validity 10000 \
-            -dname "CN=DoseCalc,O=DoseCalc,C=FR" \
-            -storepass DoseCalc2026 -keypass DoseCalc2026 -noprompt
-          echo "## Keystore (save as secret KEYSTORE_B64)" >> $GITHUB_STEP_SUMMARY
-          base64 -w 0 /tmp/dosecalc.jks >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
+      -- name: Restore keystore
+        run: echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > /tmp/dosecalc.jks
       - name: Build TWA with Gradle
         run: |
           pip install Pillow --break-system-packages
