@@ -63,7 +63,7 @@ jobs:
             namespace "fr.doseclac.app"
             defaultConfig {
               applicationId "fr.doseclac.app"
-              minSdk 19
+              minSdk 21
               targetSdk 34
               versionCode 1
               versionName "1.0"
