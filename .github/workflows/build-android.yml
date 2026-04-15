@@ -24,13 +24,7 @@ jobs:
         env:
           KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
         run: |
-          python3 -c "
-import base64,os,re
-data=os.environ.get('KEYSTORE_B64','')
-data=re.sub(r'[^A-Za-z0-9+/=]','',data)
-open('/tmp/dosecalc.jks','wb').write(base64.b64decode(data+'=='))
-print('OK:',os.path.getsize('/tmp/dosecalc.jks'))
-          "
+          python3 -c "import base64,os,re; d=re.sub(r'[^A-Za-z0-9+/=]','',os.environ.get('KEYSTORE_B64','')); open('/tmp/dosecalc.jks','wb').write(base64.b64decode(d+'==')); print('OK:',os.path.getsize('/tmp/dosecalc.jks'))"
       - name: Build TWA with Gradle
         run: |
           pip install Pillow --break-system-packages
