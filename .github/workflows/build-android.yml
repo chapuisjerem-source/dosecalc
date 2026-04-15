@@ -20,8 +20,7 @@ jobs:
           wget -q https://services.gradle.org/distributions/gradle-8.4-bin.zip
           unzip -q gradle-8.4-bin.zip -d /opt/gradle
           echo "/opt/gradle/gradle-8.4/bin" >> $GITHUB_PATH
-
-      -- name: Restore keystore
+      - name: Restore keystore
         run: echo "${{ secrets.KEYSTORE_B64 }}" | base64 -d > /tmp/dosecalc.jks
       - name: Build TWA with Gradle
         run: |
