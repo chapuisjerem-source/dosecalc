@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dosecalc-v3';
+const CACHE_NAME = 'dosecalc-v4';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icone-192.png', '/icone-512.png'];
 
 self.addEventListener('install', e => {
