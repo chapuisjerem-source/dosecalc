@@ -416,7 +416,7 @@ input[type=number] { -moz-appearance:textfield; }
   background:rgba(14,24,41,0.94); backdrop-filter:blur(20px);
   border-top:1px solid var(--border2);
   display:flex; justify-content:space-around;
-  padding:10px 0 22px; z-index:100;
+  padding:10px 0 max(22px, env(safe-area-inset-bottom)); z-index:100;
 }
 .nav-it {
   display:flex; flex-direction:column; align-items:center; gap:4px;
@@ -666,7 +666,7 @@ input[type=number] { -moz-appearance:textfield; }
 .memo-i .mv { font-family:'DM Mono', monospace; font-size:12px; line-height:1.4; }
 .memo-full { grid-column:span 2; }
 
-.app { padding-bottom:90px; }
+.app { padding-bottom:calc(90px + env(safe-area-inset-bottom, 0px)); }
 </style>
 </head>
 <body>
@@ -3297,14 +3297,32 @@ const TOOLS = {
             <div class="iw"><input type="number" id="tp_sap_vol" placeholder="ex: 50" step="any" inputmode="decimal"><span class="iu">mL</span></div>
           </div>
         </div>
-        <div class="field"><div class="field-lbl">Dose souhaitée / heure</div>
+        <div class="field"><div class="field-lbl">Unité</div>
+          <select class="sel" id="tp_sap_unit" style="width:100%" onchange="document.getElementById('tp_sap_dunit').textContent=this.value;document.getElementById('tp_sap_unit_qty').textContent=this.value.replace('/h','');calcPSEMode()">
+            <option value="mg/h">mg/h</option>
+            <option value="mcg/h">mcg/h</option>
+            <option value="UI/h">UI/h</option>
+          </select>
+        </div>
+        <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:14px;padding:12px 14px;margin-bottom:4px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">Mode de calcul</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0">
+            <input type="radio" name="pse_mode" id="pse_mode_dose" value="dose" checked onchange="calcPSEMode()" style="accent-color:#a78bfa;width:16px;height:16px">
+            <span style="font-size:13px;color:var(--text)">Dose horaire souhaitée</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0">
+            <input type="radio" name="pse_mode" id="pse_mode_hours" value="hours" onchange="calcPSEMode()" style="accent-color:#a78bfa;width:16px;height:16px">
+            <span style="font-size:13px;color:var(--text)">Durée totale de prescription</span>
+          </label>
+        </div>
+        <div id="pse_field_dose" class="field"><div class="field-lbl">Dose souhaitée / heure</div>
           <div class="row">
-            <div class="iw" style="flex:2"><input type="number" id="tp_sap_dose" placeholder="ex: 5" step="any" inputmode="decimal"><span class="iu" id="tp_sap_dunit">mg/h</span></div>
-            <select class="sel" id="tp_sap_unit" style="flex:1" onchange="document.getElementById('tp_sap_dunit').textContent=this.value;document.getElementById('tp_sap_unit_qty').textContent=this.value.replace('/h','')">
-              <option value="mg/h">mg/h</option>
-              <option value="mcg/h">mcg/h</option>
-              <option value="UI/h">UI/h</option>
-            </select>
+            <div class="iw"><input type="number" id="tp_sap_dose" placeholder="ex: 5" step="any" inputmode="decimal"><span class="iu" id="tp_sap_dunit">mg/h</span></div>
+          </div>
+        </div>
+        <div id="pse_field_hours" class="field" style="display:none"><div class="field-lbl">Durée de la prescription</div>
+          <div class="row">
+            <div class="iw"><input type="number" id="tp_sap_hours" placeholder="ex: 24" step="any" inputmode="decimal"><span class="iu">heures</span></div>
           </div>
         </div>
         <button class="calc-btn" style="background:linear-gradient(135deg,#a78bfa,#f472b6);margin-top:6px" onclick="calcPSE()">Calculer →</button>
@@ -3319,6 +3337,11 @@ const TOOLS = {
               <div class="mr-lbl">Débit PSE</div>
               <div class="mr-val" id="tr_pse_debit" style="color:#f472b6">—</div>
               <div class="mr-unit">mL / heure</div>
+            </div>
+            <div class="mr-item" id="tr_pse_doseph_wrap" style="display:none">
+              <div class="mr-lbl">Dose / heure</div>
+              <div class="mr-val" id="tr_pse_doseph" style="color:#34d399">—</div>
+              <div class="mr-unit" id="tr_pse_doseph_unit">mg/h</div>
             </div>
           </div>
           <div class="r-detail" id="tr_pse_det"></div>
@@ -3507,24 +3530,45 @@ function calcPerf(){
   saveToHistory({name:'Perfusion IV',icon:'💧',class:'outil',calcName:`${vol} mL / ${dur}`,result:r2(mlh),unit:'mL/h'});
 }
 
-function calcPSE(){
-  const qty = parseFloat(document.getElementById('tp_sap_qty').value);
-  const vol = parseFloat(document.getElementById('tp_sap_vol').value);
-  const dose = parseFloat(document.getElementById('tp_sap_dose').value);
-  const unit = document.getElementById('tp_sap_unit').value;
-  const rb = document.getElementById('tr_pse'), eb = document.getElementById('tr_pse_err');
-  if(!qty||!vol||!dose||vol===0){ rb.classList.remove('show'); eb.classList.add('show'); return; }
-  eb.classList.remove('show');
-  const conc = qty/vol, debit = dose/conc;
-  const du = unit.replace('/h','');
-  document.getElementById('tr_pse_conc').textContent = r3(conc);
-  document.getElementById('tr_pse_conc_unit').textContent = `${du}/mL`;
-  document.getElementById('tr_pse_debit').textContent = r2(debit);
-  document.getElementById('tr_pse_det').innerHTML = `Seringue : <strong>${qty} ${du}</strong> dans <strong>${vol} mL</strong><br>Concentration : <strong>${r3(conc)} ${du}/mL</strong><br>Pour <strong>${dose} ${unit}</strong> → débit : <strong>${r2(debit)} mL/h</strong>`;
-  rb.classList.add('show');
-  saveToHistory({name:'Pousse-seringue',icon:'💉',class:'outil',calcName:`${dose} ${unit}`,result:r2(debit),unit:'mL/h'});
+function calcPSEMode(){
+  const mode = document.querySelector('input[name="pse_mode"]:checked')?.value || 'dose';
+  document.getElementById('pse_field_dose').style.display  = mode==='dose'  ? '' : 'none';
+  document.getElementById('pse_field_hours').style.display = mode==='hours' ? '' : 'none';
+  document.getElementById('pse_formula_dose').style.display  = mode==='dose'  ? '' : 'none';
+  document.getElementById('pse_formula_hours').style.display = mode==='hours' ? '' : 'none';
+  document.getElementById('tr_pse').classList.remove('show');
+  document.getElementById('tr_pse_err').classList.remove('show');
 }
-
+function calcPSE(){
+  const qty=parseFloat(document.getElementById('tp_sap_qty').value);
+  const vol=parseFloat(document.getElementById('tp_sap_vol').value);
+  const unit=document.getElementById('tp_sap_unit').value;
+  const rb=document.getElementById('tr_pse'),eb=document.getElementById('tr_pse_err');
+  const du=unit.replace('/h','');
+  const mode=document.querySelector('input[name="pse_mode"]:checked')?.value||'dose';
+  if(!qty||!vol||vol===0){rb.classList.remove('show');eb.classList.add('show');return;}
+  const conc=qty/vol;
+  document.getElementById('tr_pse_conc').textContent=r3(conc);
+  document.getElementById('tr_pse_conc_unit').textContent=du+'/mL';
+  if(mode==='hours'){
+    const hours=parseFloat(document.getElementById('tp_sap_hours').value);
+    if(!hours||hours===0){rb.classList.remove('show');eb.classList.add('show');return;}
+    const debit=vol/hours,doseph=qty/hours;
+    document.getElementById('tr_pse_debit').textContent=r2(debit);
+    document.getElementById('tr_pse_doseph_wrap').style.display='';
+    document.getElementById('tr_pse_doseph').textContent=r3(doseph);
+    document.getElementById('tr_pse_doseph_unit').textContent=du+'/h';
+    document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong> sur <strong>'+hours+' h</strong><br>Concentration : <strong>'+r3(conc)+' '+du+'/mL</strong><br>Débit PSE : <strong>'+r2(debit)+' mL/h</strong> — Dose/h : <strong>'+r3(doseph)+' '+du+'/h</strong>';
+  } else {
+    const dose=parseFloat(document.getElementById('tp_sap_dose').value);
+    if(!dose){rb.classList.remove('show');eb.classList.add('show');return;}
+    const debit=dose/conc;
+    document.getElementById('tr_pse_debit').textContent=r2(debit);
+    document.getElementById('tr_pse_doseph_wrap').style.display='none';
+    document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong><br>Concentration : <strong>'+r3(conc)+' '+du+'/mL</strong><br>Pour <strong>'+dose+' '+unit+'</strong> → débit : <strong>'+r2(debit)+' mL/h</strong>';
+  }
+  eb.classList.remove('show');rb.classList.add('show');
+}
 function calcPCA(){
   const qty = parseFloat(document.getElementById('tp_pca_qty').value);
   const vol = parseFloat(document.getElementById('tp_pca_vol').value);
