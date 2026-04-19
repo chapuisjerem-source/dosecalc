@@ -3012,6 +3012,9 @@ function faireUnDon(){
   window.open(paypalUrl, '_blank');
 }
 
+// ─── SWIPE NAVIGATION ───
+(function(){const S=['tools','conv','list'];let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dy)>Math.abs(dx)||Math.abs(dx)<50)return;const a=document.querySelector('.screen.active');if(!a)return;const cur=S.findIndex(s=>a.id==='screen-'+s);if(cur<0)return;const n=dx<0?cur+1:cur-1;if(n>=0&&n<S.length)showScreen(S[n]);},{passive:true});})();
+
 // ─── MODULE CONVERSION ───
 const CONV_GROUPS = [
   {
@@ -3539,36 +3542,8 @@ function calcPSEMode(){
   document.getElementById('tr_pse').classList.remove('show');
   document.getElementById('tr_pse_err').classList.remove('show');
 }
-function calcPSE(){
-  const qty=parseFloat(document.getElementById('tp_sap_qty').value);
-  const vol=parseFloat(document.getElementById('tp_sap_vol').value);
-  const unit=document.getElementById('tp_sap_unit').value;
-  const rb=document.getElementById('tr_pse'),eb=document.getElementById('tr_pse_err');
-  const du=unit.replace('/h','');
-  const mode=document.querySelector('input[name="pse_mode"]:checked')?.value||'dose';
-  if(!qty||!vol||vol===0){rb.classList.remove('show');eb.classList.add('show');return;}
-  const conc=qty/vol;
-  document.getElementById('tr_pse_conc').textContent=r3(conc);
-  document.getElementById('tr_pse_conc_unit').textContent=du+'/mL';
-  if(mode==='hours'){
-    const hours=parseFloat(document.getElementById('tp_sap_hours').value);
-    if(!hours||hours===0){rb.classList.remove('show');eb.classList.add('show');return;}
-    const debit=vol/hours,doseph=qty/hours;
-    document.getElementById('tr_pse_debit').textContent=r2(debit);
-    document.getElementById('tr_pse_doseph_wrap').style.display='';
-    document.getElementById('tr_pse_doseph').textContent=r3(doseph);
-    document.getElementById('tr_pse_doseph_unit').textContent=du+'/h';
-    document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong> sur <strong>'+hours+' h</strong><br>Concentration : <strong>'+r3(conc)+' '+du+'/mL</strong><br>Débit PSE : <strong>'+r2(debit)+' mL/h</strong> — Dose/h : <strong>'+r3(doseph)+' '+du+'/h</strong>';
-  } else {
-    const dose=parseFloat(document.getElementById('tp_sap_dose').value);
-    if(!dose){rb.classList.remove('show');eb.classList.add('show');return;}
-    const debit=dose/conc;
-    document.getElementById('tr_pse_debit').textContent=r2(debit);
-    document.getElementById('tr_pse_doseph_wrap').style.display='none';
-    document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong><br>Concentration : <strong>'+r3(conc)+' '+du+'/mL</strong><br>Pour <strong>'+dose+' '+unit+'</strong> → débit : <strong>'+r2(debit)+' mL/h</strong>';
-  }
-  eb.classList.remove('show');rb.classList.add('show');
-}
+function calcPSEMode(){const mode=document.querySelector('input[name="pse_mode"]:checked')?.value||'dose';document.getElementById('pse_field_dose').style.display=mode==='dose'?'':'none';document.getElementById('pse_field_hours').style.display=mode==='hours'?'':'none';document.getElementById('tr_pse').classList.remove('show');document.getElementById('tr_pse_err').classList.remove('show');}
+function calcPSE(){const qty=parseFloat(document.getElementById('tp_sap_qty').value);const vol=parseFloat(document.getElementById('tp_sap_vol').value);const unit=document.getElementById('tp_sap_unit').value;const rb=document.getElementById('tr_pse'),eb=document.getElementById('tr_pse_err');const du=unit.replace('/h','');const mode=document.querySelector('input[name="pse_mode"]:checked')?.value||'dose';if(!qty||!vol||vol===0){rb.classList.remove('show');eb.classList.add('show');return;}const conc=qty/vol;document.getElementById('tr_pse_conc').textContent=r3(conc);document.getElementById('tr_pse_conc_unit').textContent=du+'/mL';if(mode==='hours'){const hours=parseFloat(document.getElementById('tp_sap_hours').value);if(!hours||hours===0){rb.classList.remove('show');eb.classList.add('show');return;}const debit=vol/hours,doseph=qty/hours;document.getElementById('tr_pse_debit').textContent=r2(debit);document.getElementById('tr_pse_doseph_wrap').style.display='';document.getElementById('tr_pse_doseph').textContent=r3(doseph);document.getElementById('tr_pse_doseph_unit').textContent=du+'/h';document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong> sur <strong>'+hours+' h</strong><br>Débit PSE : <strong>'+r2(debit)+' mL/h</strong> — Dose/h : <strong>'+r3(doseph)+' '+du+'/h</strong>';}else{const dose=parseFloat(document.getElementById('tp_sap_dose').value);if(!dose){rb.classList.remove('show');eb.classList.add('show');return;}const debit=dose/conc;document.getElementById('tr_pse_doseph_wrap').style.display='none';document.getElementById('tr_pse_debit').textContent=r2(debit);document.getElementById('tr_pse_det').innerHTML='Seringue : <strong>'+qty+' '+du+'</strong> dans <strong>'+vol+' mL</strong><br>Pour <strong>'+dose+' '+unit+'</strong> → débit : <strong>'+r2(debit)+' mL/h</strong>';}eb.classList.remove('show');rb.classList.add('show');}
 function calcPCA(){
   const qty = parseFloat(document.getElementById('tp_pca_qty').value);
   const vol = parseFloat(document.getElementById('tp_pca_vol').value);
